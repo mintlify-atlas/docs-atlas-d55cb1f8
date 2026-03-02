@@ -1,0 +1,521 @@
+---
+title: MCP Server
+description: Expose your documentation to AI tools through a built-in Model Context Protocol server that provides automatic discovery and content access.
+icon: cpu
+---
+
+## Overview
+
+Every Docus instance includes a built-in MCP (Model Context Protocol) server that exposes your documentation to AI assistants and tools. This creates a standardized interface for AI applications like Claude, Cursor, VS Code, and others to discover and read your documentation.
+
+<Info>
+  The MCP server is automatically available at the `/mcp` path of your documentation URL (e.g., `https://docs.example.com/mcp`).
+</Info>
+
+## What is MCP?
+
+The [Model Context Protocol](https://modelcontextprotocol.io/) is an open protocol that creates standardized connections between AI applications and external services. It allows:
+
+- **Proactive tool use** - LLMs can search your docs during response generation, not just when explicitly asked
+- **Real-time information** - AI tools incorporate fresh documentation content into responses
+- **Context-aware decisions** - LLMs determine when your docs are relevant to user questions
+
+For example, if a user asks a coding question in Claude, the LLM can automatically search your documentation and include relevant information in its response without the user explicitly mentioning your docs.
+
+## Built-in Tools
+
+Docus provides two MCP tools out of the box:
+
+### list-pages
+
+Lists all documentation pages with titles, paths, and descriptions. AI assistants call this first to discover available content.
+
+**Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `locale` | string | No | Filter pages by locale (e.g., `en`, `fr`) |
+
+**Example response:**
+
+```json
+[
+  {
+    "title": "Getting Started",
+    "path": "/en/getting-started",
+    "description": "Learn how to install and configure Docus"
+  },
+  {
+    "title": "Configuration",
+    "path": "/en/configuration",
+    "description": "Configure your documentation site"
+  }
+]
+```
+
+### get-page
+
+Retrieves the full markdown content of a specific documentation page.
+
+**Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `path` | string | Yes | Page path (e.g., `/en/getting-started/installation`) |
+
+**Example response:**
+
+```markdown
+# Getting Started
+
+Welcome to the documentation...
+
+## Installation
+
+Install the package using npm:
+
+```bash
+npm install docus
+```
+```
+
+## Setup in AI Tools
+
+The Docus MCP server uses HTTP transport and can be installed in various AI assistants.
+
+### Claude Desktop
+
+Add the server using the CLI:
+
+```bash
+claude mcp add --transport http my-docs https://docs.example.com/mcp
+```
+
+Or manually edit your Claude config:
+
+```json ~/.config/claude/claude_desktop_config.json
+{
+  "mcpServers": {
+    "my-docs": {
+      "type": "http",
+      "url": "https://docs.example.com/mcp"
+    }
+  }
+}
+```
+
+### Cursor
+
+Manually create the config file:
+
+```json .cursor/mcp.json
+{
+  "mcpServers": {
+    "my-docs": {
+      "type": "http",
+      "url": "https://docs.example.com/mcp"
+    }
+  }
+}
+```
+
+### Visual Studio Code
+
+Ensure you have GitHub Copilot and GitHub Copilot Chat extensions installed. Manually create the config:
+
+```json .vscode/mcp.json
+{
+  "servers": {
+    "my-docs": {
+      "type": "http",
+      "url": "https://docs.example.com/mcp"
+    }
+  }
+}
+```
+
+### Windsurf
+
+<Steps>
+  <Step title="Open Settings">
+    Navigate to **Settings** > **Windsurf Settings** > **Cascade**
+  </Step>
+  
+  <Step title="Manage MCPs">
+    Click **Manage MCPs**, then select **View raw config**
+  </Step>
+  
+  <Step title="Add Configuration">
+    Add the following configuration:
+    
+    ```json .codeium/windsurf/mcp_config.json
+    {
+      "mcpServers": {
+        "my-docs": {
+          "type": "http",
+          "url": "https://docs.example.com/mcp"
+        }
+      }
+    }
+    ```
+  </Step>
+</Steps>
+
+### Zed
+
+<Steps>
+  <Step title="Open Settings">
+    Open Zed and go to **Settings** > **Open Settings**
+  </Step>
+  
+  <Step title="Navigate to JSON">
+    Navigate to the JSON settings file
+  </Step>
+  
+  <Step title="Add Context Server">
+    Add the following configuration:
+    
+    ```json .config/zed/settings.json
+    {
+      "context_servers": {
+        "my-docs": {
+          "source": "custom",
+          "command": "npx",
+          "args": ["mcp-remote", "https://docs.example.com/mcp"],
+          "env": {}
+        }
+      }
+    }
+    ```
+  </Step>
+</Steps>
+
+## Configuration
+
+### Disable MCP Server
+
+To disable the MCP server entirely:
+
+```typescript nuxt.config.ts
+export default defineNuxtConfig({
+  mcp: {
+    enabled: false
+  }
+})
+```
+
+### Custom Route
+
+Change the MCP server route (advanced):
+
+```typescript nuxt.config.ts
+export default defineNuxtConfig({
+  mcp: {
+    route: '/api/mcp'
+  }
+})
+```
+
+<Warning>
+  If you change the MCP route, remember to update the `mcpServer` option in the assistant configuration to match.
+</Warning>
+
+## Customization
+
+Since Docus uses the `@nuxtjs/mcp-toolkit` module, you can extend the MCP server with custom tools, resources, prompts, and handlers.
+
+### Adding Custom Tools
+
+Create new tools in the `server/mcp/tools/` directory:
+
+```typescript server/mcp/tools/search.ts
+import { z } from 'zod'
+
+export default defineMcpTool({
+  description: 'Search documentation by keyword',
+  inputSchema: {
+    query: z.string().describe('The search query'),
+    limit: z.number().optional().describe('Max results to return')
+  },
+  handler: async ({ query, limit = 10 }) => {
+    // Implement your search logic
+    const results = await searchDocs(query, limit)
+    
+    return {
+      content: [
+        { 
+          type: 'text', 
+          text: JSON.stringify(results, null, 2) 
+        }
+      ]
+    }
+  }
+})
+```
+
+### Adding Resources
+
+Expose files or data sources as MCP resources:
+
+<CodeGroup>
+```typescript File Resource
+// server/mcp/resources/changelog.ts
+export default defineMcpResource({
+  file: 'CHANGELOG.md',
+  metadata: {
+    description: 'Project changelog with version history'
+  }
+})
+```
+
+```typescript Dynamic Resource
+// server/mcp/resources/api-status.ts
+export default defineMcpResource({
+  uri: 'status://api',
+  name: 'API Status',
+  metadata: {
+    mimeType: 'application/json',
+    description: 'Current API service status'
+  },
+  handler: async () => {
+    const status = await checkApiStatus()
+    return {
+      contents: [
+        {
+          uri: 'status://api',
+          mimeType: 'application/json',
+          text: JSON.stringify(status)
+        }
+      ]
+    }
+  }
+})
+```
+</CodeGroup>
+
+The `file` property automatically handles URI generation, MIME type detection, and file reading.
+
+### Adding Prompts
+
+Create reusable prompts that help AI assistants use your documentation effectively:
+
+```typescript server/mcp/prompts/migration-help.ts
+import { z } from 'zod'
+
+export default defineMcpPrompt({
+  description: 'Get help migrating between versions',
+  inputSchema: {
+    fromVersion: z.string().describe('Current version'),
+    toVersion: z.string().describe('Target version')
+  },
+  handler: async ({ fromVersion, toVersion }) => {
+    return {
+      messages: [
+        {
+          role: 'user',
+          content: {
+            type: 'text',
+            text: `Help me migrate from version ${fromVersion} to ${toVersion}. 
+            What are the breaking changes and migration steps I need to follow?`
+          }
+        }
+      ]
+    }
+  }
+})
+```
+
+### Adding Custom Handlers
+
+Create separate MCP endpoints with their own tools, resources, and prompts:
+
+```typescript server/mcp/migration.ts
+import { z } from 'zod'
+
+const migrationTool = defineMcpTool({
+  name: 'migrate-v3-to-v4',
+  description: 'Automatically migrate code from version 3 to version 4',
+  inputSchema: {
+    code: z.string().describe('The code to migrate'),
+    language: z.enum(['typescript', 'javascript']).describe('Code language')
+  },
+  handler: async ({ code, language }) => {
+    const migratedCode = await runMigration(code, language)
+    
+    return {
+      content: [
+        { 
+          type: 'text', 
+          text: migratedCode 
+        }
+      ]
+    }
+  }
+})
+
+export default defineMcpHandler({
+  route: '/mcp/migration',
+  name: 'Migration Assistant',
+  version: '1.0.0',
+  tools: [migrationTool]
+})
+```
+
+This creates a dedicated MCP server at `/mcp/migration` for migration-specific functionality.
+
+### Overriding Built-in Tools
+
+Override the default `list-pages` or `get-page` tools by creating a tool with the same name:
+
+```typescript server/mcp/tools/list-pages.ts
+import { z } from 'zod'
+
+export default defineMcpTool({
+  description: 'List all documentation pages with custom filtering',
+  inputSchema: {
+    locale: z.string().optional().describe('Filter by locale'),
+    category: z.string().optional().describe('Filter by category'),
+    tag: z.string().optional().describe('Filter by tag')
+  },
+  handler: async ({ locale, category, tag }) => {
+    const pages = await getCustomPageList({
+      locale,
+      category,
+      tag
+    })
+    
+    return {
+      content: [
+        { 
+          type: 'text', 
+          text: JSON.stringify(pages, null, 2) 
+        }
+      ]
+    }
+  }
+})
+```
+
+## Advanced Use Cases
+
+### Multiple MCP Endpoints
+
+Create specialized MCP servers for different purposes:
+
+- `/mcp` - Main documentation
+- `/mcp/api` - API reference only
+- `/mcp/migration` - Migration assistance
+- `/mcp/examples` - Code examples and snippets
+
+```typescript server/mcp/api.ts
+export default defineMcpHandler({
+  route: '/mcp/api',
+  name: 'API Reference',
+  version: '1.0.0',
+  tools: [
+    // API-specific tools
+  ]
+})
+```
+
+### Cross-Documentation References
+
+Create tools that reference multiple documentation sources:
+
+```typescript server/mcp/tools/search-all.ts
+import { z } from 'zod'
+
+export default defineMcpTool({
+  description: 'Search across all related documentation sites',
+  inputSchema: {
+    query: z.string(),
+    sources: z.array(z.enum(['main', 'api', 'examples']))
+  },
+  handler: async ({ query, sources }) => {
+    const results = await Promise.all(
+      sources.map(source => searchDocSource(source, query))
+    )
+    
+    return {
+      content: [
+        { 
+          type: 'text', 
+          text: JSON.stringify(results.flat(), null, 2) 
+        }
+      ]
+    }
+  }
+})
+```
+
+### Context-Aware Tools
+
+Create tools that understand project context:
+
+```typescript server/mcp/tools/suggest-fix.ts
+import { z } from 'zod'
+
+export default defineMcpTool({
+  description: 'Suggest fixes for common errors based on documentation',
+  inputSchema: {
+    error: z.string().describe('The error message'),
+    context: z.string().optional().describe('Additional context')
+  },
+  handler: async ({ error, context }) => {
+    // Find related documentation pages
+    const relatedDocs = await findDocsForError(error)
+    
+    // Generate suggestions
+    const suggestions = await generateSuggestions(error, relatedDocs, context)
+    
+    return {
+      content: [
+        { 
+          type: 'text', 
+          text: suggestions 
+        }
+      ]
+    }
+  }
+})
+```
+
+## Testing Your MCP Server
+
+You can test your MCP server using the MCP Inspector or by making HTTP requests:
+
+```bash
+# List available tools
+curl https://docs.example.com/mcp/tools
+
+# Call the list-pages tool
+curl -X POST https://docs.example.com/mcp/call \
+  -H "Content-Type: application/json" \
+  -d '{
+    "method": "tools/call",
+    "params": {
+      "name": "list-pages",
+      "arguments": { "locale": "en" }
+    }
+  }'
+```
+
+## Further Reading
+
+<CardGroup cols={2}>
+  <Card title="MCP Toolkit" icon="wrench" href="https://mcp-toolkit.nuxt.dev/">
+    Full documentation for the MCP Toolkit module
+  </Card>
+  
+  <Card title="Model Context Protocol" icon="book" href="https://modelcontextprotocol.io/">
+    Official MCP specification and protocol details
+  </Card>
+  
+  <Card title="AI Assistant" icon="sparkles" href="/ai/assistant">
+    Learn how the assistant uses the MCP server
+  </Card>
+  
+  <Card title="LLMs Integration" icon="message-circle-code" href="/ai/llms-txt">
+    Expose your docs via llms.txt files
+  </Card>
+</CardGroup>

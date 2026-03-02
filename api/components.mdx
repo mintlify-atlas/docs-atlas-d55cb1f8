@@ -1,0 +1,328 @@
+---
+title: Components
+description: Built-in Vue components available in Docus
+icon: i-lucide-component
+---
+
+Docus provides a set of built-in Vue components for building documentation layouts and features. These components are automatically available in your pages.
+
+## Layout Components
+
+### AppHeader
+
+Main application header with navigation, logo, and actions.
+
+**Location:** `app/components/app/AppHeader.vue`
+
+<CodeGroup>
+```vue
+<template>
+  <AppHeader />
+</template>
+```
+</CodeGroup>
+
+**Features:**
+- Responsive navigation menu
+- Logo display (light/dark mode)
+- Search button
+- Color mode toggle
+- Language selector (if i18n enabled)
+- GitHub link (if configured)
+- AI Assistant trigger
+
+**Slots:**
+- `#title` - Custom header title/logo
+- `#right` - Custom content in header right section
+- `#toggle` - Custom mobile menu toggle
+- `#body` - Custom content in mobile menu
+
+### AppHeaderLogo
+
+Displays the site logo with context menu for brand assets.
+
+**Location:** `app/components/app/AppHeaderLogo.vue`
+
+<CodeGroup>
+```vue
+<template>
+  <AppHeaderLogo class="h-6 w-auto" />
+</template>
+```
+</CodeGroup>
+
+**Features:**
+- Automatic light/dark mode switching
+- Context menu with copy/download options (for SVG logos)
+- Brand assets download link
+- Wordmark support
+
+**Uses:** `useLogoAssets()` composable
+
+### AppHeaderCenter
+
+Center section of the header for navigation or custom content.
+
+**Location:** `app/components/app/AppHeaderCenter.vue`
+
+<CodeGroup>
+```vue
+<template>
+  <AppHeaderCenter />
+</template>
+```
+</CodeGroup>
+
+### AppHeaderCTA
+
+Call-to-action section in the header.
+
+**Location:** `app/components/app/AppHeaderCTA.vue`
+
+<CodeGroup>
+```vue
+<template>
+  <AppHeaderCTA />
+</template>
+```
+</CodeGroup>
+
+### AppFooter
+
+Main application footer with customizable left and right sections.
+
+**Location:** `app/components/app/AppFooter.vue`
+
+<CodeGroup>
+```vue
+<template>
+  <AppFooter />
+</template>
+```
+</CodeGroup>
+
+**Slots:**
+- `#left` - Custom content in footer left section
+- `#right` - Custom content in footer right section
+
+### AppFooterLeft
+
+Left section of the footer (typically copyright/links).
+
+**Location:** `app/components/app/AppFooterLeft.vue`
+
+### AppFooterRight
+
+Right section of the footer (typically social links).
+
+**Location:** `app/components/app/AppFooterRight.vue`
+
+## Documentation Components
+
+### DocsAsideLeftBody
+
+Main navigation sidebar for documentation pages.
+
+**Location:** `app/components/docs/DocsAsideLeftBody.vue`
+
+<CodeGroup>
+```vue
+<template>
+  <DocsAsideLeftBody />
+</template>
+```
+</CodeGroup>
+
+**Features:**
+- Automatic navigation tree from content
+- Active page highlighting
+- Collapsible sections
+- Smooth scrolling
+
+**Uses:** Content navigation API
+
+### DocsAsideLeftTop
+
+Top section of the left documentation sidebar.
+
+**Location:** `app/components/docs/DocsAsideLeftTop.vue`
+
+### DocsAsideRightBottom
+
+Bottom section of the right documentation sidebar (TOC).
+
+**Location:** `app/components/docs/DocsAsideRightBottom.vue`
+
+### DocsPageHeaderLinks
+
+Header links section for documentation pages (breadcrumbs, edit link).
+
+**Location:** `app/components/docs/DocsPageHeaderLinks.vue`
+
+<CodeGroup>
+```vue
+<template>
+  <DocsPageHeaderLinks />
+</template>
+```
+</CodeGroup>
+
+**Features:**
+- Breadcrumb navigation
+- "Edit this page" GitHub link
+- Last updated timestamp
+
+## Utility Components
+
+### LanguageSelect
+
+Language/locale selector dropdown with flag emojis.
+
+**Location:** `app/components/LanguageSelect.vue`
+
+<CodeGroup>
+```vue
+<template>
+  <LanguageSelect />
+</template>
+```
+</CodeGroup>
+
+**Features:**
+- Flag emoji for each locale
+- Hover popover with locale list
+- Automatic route switching
+- Only shows when i18n is enabled and multiple locales configured
+
+**Uses:** `useDocusI18n()` composable
+
+### IconMenuToggle
+
+Animated menu toggle icon for mobile navigation.
+
+**Location:** `app/components/IconMenuToggle.vue`
+
+<CodeGroup>
+```vue
+<template>
+  <IconMenuToggle 
+    :open="isOpen" 
+    @click="toggle" 
+  />
+</template>
+```
+</CodeGroup>
+
+**Props:**
+- `open` (boolean) - Whether menu is open
+
+**Events:**
+- `@click` - Emitted when clicked
+
+## Open Graph Images
+
+### OgImageDocs
+
+Open Graph image template for documentation pages.
+
+**Location:** `app/components/OgImage/OgImageDocs.vue`
+
+<CodeGroup>
+```vue ogimage.vue
+<template>
+  <OgImageDocs />
+</template>
+```
+</CodeGroup>
+
+**Features:**
+- Automatic title and description from page frontmatter
+- Site branding
+- Optimized dimensions (1200x630)
+
+### OgImageLanding
+
+Open Graph image template for landing pages.
+
+**Location:** `app/components/OgImage/OgImageLanding.vue`
+
+<CodeGroup>
+```vue ogimage.vue
+<template>
+  <OgImageLanding />
+</template>
+```
+</CodeGroup>
+
+## Component Customization
+
+All Docus components can be overridden by creating a file with the same path in your project:
+
+<CodeGroup>
+```bash
+# Override AppHeader
+mkdir -p app/components/app
+touch app/components/app/AppHeader.vue
+
+# Override DocsAsideLeftBody
+mkdir -p app/components/docs
+touch app/components/docs/DocsAsideLeftBody.vue
+```
+</CodeGroup>
+
+## Using Nuxt UI Components
+
+Docus is built on Nuxt UI, giving you access to all Nuxt UI components:
+
+<CodeGroup>
+```vue
+<template>
+  <div>
+    <UButton to="/docs">View Docs</UButton>
+    <UBadge color="primary">New</UBadge>
+    <UCard>
+      <template #header>
+        <h3>Card Title</h3>
+      </template>
+      Card content here
+    </UCard>
+  </div>
+</template>
+```
+</CodeGroup>
+
+See the [Nuxt UI documentation](https://ui.nuxt.com) for the complete component library.
+
+## Slots Reference
+
+### AppHeader Slots
+
+<ResponseField name="#title" type="slot">
+  Custom header title or logo
+</ResponseField>
+
+<ResponseField name="#right" type="slot">
+  Content in the header right section (before built-in actions)
+</ResponseField>
+
+<ResponseField name="#toggle" type="slot">
+  Custom mobile menu toggle button
+  
+  **Slot Props:**
+  - `open` (boolean) - Menu open state
+  - `toggle` (function) - Toggle function
+</ResponseField>
+
+<ResponseField name="#body" type="slot">
+  Content in the mobile menu drawer
+</ResponseField>
+
+### AppFooter Slots
+
+<ResponseField name="#left" type="slot">
+  Content in the footer left section
+</ResponseField>
+
+<ResponseField name="#right" type="slot">
+  Content in the footer right section
+</ResponseField>

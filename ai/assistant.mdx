@@ -1,0 +1,498 @@
+---
+title: AI Assistant
+description: Add an AI-powered chat assistant to your documentation that answers questions, cites sources, and helps users find information quickly.
+icon: sparkles
+---
+
+## Overview
+
+The AI Assistant is a built-in chat interface that provides intelligent, contextual answers to user questions about your documentation. It uses the Model Context Protocol (MCP) to search and retrieve relevant content, then generates helpful responses with source citations and code examples.
+
+<Info>
+  The assistant requires an [AI Gateway API key](https://vercel.com/docs/ai-gateway) to function. Without this key, the assistant components will be automatically disabled.
+</Info>
+
+## How It Works
+
+The assistant uses a multi-agent architecture powered by the AI SDK:
+
+1. **User Query** - Users ask questions through the floating input or slideover interface
+2. **MCP Tools** - The AI uses your built-in MCP server to search and retrieve documentation pages
+3. **Response Generation** - The AI synthesizes information into conversational answers with citations
+4. **Streaming UI** - Responses stream in real-time with syntax-highlighted code blocks
+
+By default, the assistant connects to your documentation's built-in MCP server at `/mcp`, giving it access to all your pages without additional configuration.
+
+## Quick Start
+
+<Steps>
+  <Step title="Get an API Key">
+    Visit [Vercel AI Gateway](https://vercel.com/~/ai/api-keys) and create an API key. AI Gateway supports multiple providers (OpenAI, Anthropic, Google, and more) through a unified API.
+  </Step>
+  
+  <Step title="Add Environment Variable">
+    Set your API key in your environment:
+    
+    ```bash .env
+    AI_GATEWAY_API_KEY=your-api-key-here
+    ```
+  </Step>
+  
+  <Step title="Deploy and Test">
+    That's it! The assistant is automatically enabled when the API key is detected. Deploy your site and look for the floating input at the bottom of documentation pages.
+  </Step>
+</Steps>
+
+## User Interface Components
+
+### Floating Input
+
+A compact input field appears at the bottom center of documentation pages, allowing users to quickly ask questions without opening a panel.
+
+**Features:**
+- Auto-hides when the chat slideover is open
+- Expands on focus for better typing experience
+- Keyboard shortcut: `Cmd+I` (Mac) or `Ctrl+I` (Windows)
+- Press `Escape` to blur the input
+
+### Chat Slideover
+
+When users submit a question, a side panel opens displaying the conversation. The panel includes:
+
+- **Streaming responses** with real-time text generation
+- **Syntax-highlighted code blocks** using Shiki
+- **Source citations** linking back to relevant documentation pages
+- **FAQ suggestions** when the chat is empty
+- **Clear chat button** to start a fresh conversation
+
+### Explain with AI Button
+
+Each documentation page includes an "Explain with AI" button in the sidebar that opens the assistant with the current page as context.
+
+## Configuration
+
+### Basic Options
+
+Configure the assistant in `nuxt.config.ts`:
+
+```typescript nuxt.config.ts
+export default defineNuxtConfig({
+  assistant: {
+    // AI model (uses AI SDK Gateway format)
+    model: 'google/gemini-3-flash',
+    
+    // MCP server path or URL
+    mcpServer: '/mcp',
+    
+    // API endpoint path
+    apiPath: '/__docus__/assistant'
+  }
+})
+```
+
+### Module Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `apiPath` | `string` | `/__docus__/assistant` | API endpoint path for the chat |
+| `mcpServer` | `string` | `/mcp` | MCP server path or full URL |
+| `model` | `string` | `google/gemini-3-flash` | AI model identifier for AI SDK Gateway |
+
+### App Configuration
+
+Customize the UI and behavior in `app.config.ts`:
+
+```typescript app.config.ts
+export default defineAppConfig({
+  assistant: {
+    // Show floating input on documentation pages
+    floatingInput: true,
+    
+    // Show "Explain with AI" button in sidebar
+    explainWithAi: true,
+    
+    // FAQ questions (see below for formats)
+    faqQuestions: [],
+    
+    // Keyboard shortcuts
+    shortcuts: {
+      focusInput: 'meta_i'
+    },
+    
+    // Custom icons
+    icons: {
+      trigger: 'i-lucide-sparkles',
+      explain: 'i-lucide-brain'
+    }
+  }
+})
+```
+
+## FAQ Questions
+
+Display suggested questions when the chat is empty to help users discover capabilities.
+
+### Simple Array
+
+```typescript app.config.ts
+export default defineAppConfig({
+  assistant: {
+    faqQuestions: [
+      'How do I get started?',
+      'How do I customize the theme?',
+      'How do I deploy my site?'
+    ]
+  }
+})
+```
+
+### Categorized Questions
+
+```typescript app.config.ts
+export default defineAppConfig({
+  assistant: {
+    faqQuestions: [
+      {
+        category: 'Getting Started',
+        items: [
+          'How do I install the framework?',
+          'What is the project structure?'
+        ]
+      },
+      {
+        category: 'Customization',
+        items: [
+          'How do I change colors?',
+          'How do I add custom components?'
+        ]
+      }
+    ]
+  }
+})
+```
+
+### Localized Questions
+
+<CodeGroup>
+```typescript English
+export default defineAppConfig({
+  assistant: {
+    faqQuestions: {
+      en: [
+        { 
+          category: 'Getting Started', 
+          items: ['How do I install?'] 
+        }
+      ],
+      fr: [
+        { 
+          category: 'Démarrage', 
+          items: ['Comment installer ?'] 
+        }
+      ]
+    }
+  }
+})
+```
+
+```typescript Flat Array
+export default defineAppConfig({
+  assistant: {
+    faqQuestions: {
+      en: ['How do I install?', 'How do I configure?'],
+      fr: ['Comment installer ?', 'Comment configurer ?']
+    }
+  }
+})
+```
+</CodeGroup>
+
+## MCP Server Configuration
+
+The assistant requires an MCP server to access your documentation content.
+
+### Built-in MCP Server (Default)
+
+Use Docus's built-in MCP server that automatically exposes all your documentation pages:
+
+```typescript nuxt.config.ts
+export default defineNuxtConfig({
+  assistant: {
+    mcpServer: '/mcp'
+  }
+})
+```
+
+<Warning>
+  Ensure the MCP server is enabled in your configuration. If you've disabled it or customized the path, update the `mcpServer` option accordingly.
+</Warning>
+
+### External MCP Server
+
+Connect to any external MCP server by providing a full URL:
+
+```typescript nuxt.config.ts
+export default defineNuxtConfig({
+  assistant: {
+    mcpServer: 'https://other-docs.example.com/mcp'
+  }
+})
+```
+
+This allows the assistant to answer questions from different documentation sources or a centralized knowledge base.
+
+## AI Model Selection
+
+The assistant uses `google/gemini-3-flash` by default for fast, cost-effective responses. You can change to any model supported by AI SDK Gateway:
+
+<CodeGroup>
+```typescript Google Gemini
+export default defineNuxtConfig({
+  assistant: {
+    model: 'google/gemini-3-flash'
+  }
+})
+```
+
+```typescript Anthropic Claude
+export default defineNuxtConfig({
+  assistant: {
+    model: 'anthropic/claude-opus-4.5'
+  }
+})
+```
+
+```typescript OpenAI GPT
+export default defineNuxtConfig({
+  assistant: {
+    model: 'openai/gpt-4o'
+  }
+})
+```
+</CodeGroup>
+
+## Customization
+
+### Site Name in Responses
+
+The assistant automatically uses your site name in responses. Configure it in `nuxt.config.ts`:
+
+```typescript nuxt.config.ts
+export default defineNuxtConfig({
+  site: {
+    name: 'My Documentation'
+  }
+})
+```
+
+The assistant will respond as "the My Documentation assistant" and speak with authority about your specific product.
+
+### System Prompt
+
+To customize the AI's behavior and personality, you can override the system prompt by creating a custom server handler:
+
+```typescript server/api/__docus__/assistant.ts
+import { streamText } from 'ai'
+
+function getSystemPrompt(siteName: string) {
+  return `You are a helpful assistant for ${siteName}.
+  
+  Key guidelines:
+  - Be concise and friendly
+  - Always cite your sources
+  - Provide code examples when relevant
+  - Never use markdown headings
+  - Use **bold** for emphasis`
+}
+
+export default defineEventHandler(async (event) => {
+  // Your custom implementation
+})
+```
+
+### Keyboard Shortcuts
+
+Customize the keyboard shortcut for focusing the floating input:
+
+```typescript app.config.ts
+export default defineAppConfig({
+  assistant: {
+    shortcuts: {
+      focusInput: 'meta_k' // Changes to Cmd+K / Ctrl+K
+    }
+  }
+})
+```
+
+Common shortcut formats:
+- `meta_i` - Cmd+I (Mac) / Ctrl+I (Windows)
+- `meta_k` - Cmd+K (Mac) / Ctrl+K (Windows)  
+- `ctrl_shift_p` - Ctrl+Shift+P
+
+### Custom Icons
+
+Replace the default icons with any Iconify icon:
+
+```typescript app.config.ts
+export default defineAppConfig({
+  assistant: {
+    icons: {
+      trigger: 'i-lucide-bot',
+      explain: 'i-lucide-lightbulb'
+    }
+  }
+})
+```
+
+Browse available icons at [Iconify](https://iconify.design/).
+
+## Programmatic Control
+
+Use the `useAssistant` composable to control the assistant from your components:
+
+```vue
+<script setup>
+const { 
+  isEnabled,     // Whether assistant is enabled (API key present)
+  isOpen,        // Whether slideover is open
+  isExpanded,    // Whether panel is expanded
+  messages,      // Chat message history
+  faqQuestions,  // FAQ questions from config
+  open,          // Open assistant
+  close,         // Close assistant
+  toggle,        // Toggle open/closed
+  clearMessages  // Clear chat history
+} = useAssistant()
+
+// Open with a pre-filled question
+function askAboutThemes() {
+  open('How do I customize the theme?', true)
+}
+
+// Open without clearing previous messages
+function continueChat() {
+  open('Tell me more about components')
+}
+</script>
+
+<template>
+  <div>
+    <UButton 
+      v-if="isEnabled" 
+      @click="askAboutThemes"
+    >
+      Ask about themes
+    </UButton>
+    
+    <UButton @click="toggle">
+      {{ isOpen ? 'Close' : 'Open' }} Assistant
+    </UButton>
+  </div>
+</template>
+```
+
+### Composable API Reference
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `isEnabled` | `ComputedRef<boolean>` | Whether assistant is enabled (API key present) |
+| `isOpen` | `Ref<boolean>` | Whether slideover is open |
+| `isExpanded` | `Ref<boolean>` | Whether panel is in expanded mode |
+| `isMobile` | `Ref<boolean>` | Whether viewport is mobile size |
+| `panelWidth` | `ComputedRef<number>` | Current panel width (360 or 520px) |
+| `messages` | `Ref<UIMessage[]>` | Chat message history |
+| `pendingMessage` | `Ref<string?>` | Message waiting to be sent |
+| `faqQuestions` | `ComputedRef<FaqCategory[]>` | FAQ questions from config |
+| `open(message?, clear?)` | `Function` | Open assistant with optional message |
+| `close()` | `Function` | Close assistant slideover |
+| `toggle()` | `Function` | Toggle open/closed state |
+| `toggleExpanded()` | `Function` | Toggle panel width |
+| `clearMessages()` | `Function` | Clear conversation history |
+| `clearPending()` | `Function` | Clear pending message |
+
+## Disabling Features
+
+### Disable Floating Input
+
+```typescript app.config.ts
+export default defineAppConfig({
+  assistant: {
+    floatingInput: false
+  }
+})
+```
+
+### Disable "Explain with AI" Button
+
+```typescript app.config.ts
+export default defineAppConfig({
+  assistant: {
+    explainWithAi: false
+  }
+})
+```
+
+### Disable Assistant Entirely
+
+Simply remove the environment variable:
+
+```bash .env
+# Comment out or remove
+# AI_GATEWAY_API_KEY=your-api-key
+```
+
+When disabled, all assistant components are replaced with a disabled placeholder component.
+
+## Internationalization
+
+All UI text is automatically translated based on the user's locale. Docus includes built-in translations for English and French.
+
+**Translated elements:**
+- Slideover title and placeholder text
+- Button labels ("Clear chat", "Close", "Explain with AI")
+- Tooltip texts
+- Status messages ("Thinking...", "Chat is cleared on refresh")
+
+To add more languages, contribute to the Docus i18n files.
+
+## Dependencies
+
+The assistant module requires these packages (automatically installed with Docus):
+
+```json package.json
+{
+  "dependencies": {
+    "@ai-sdk/mcp": "latest",
+    "@ai-sdk/vue": "latest",
+    "@ai-sdk/gateway": "latest",
+    "ai": "latest",
+    "shiki": "latest",
+    "shiki-stream": "latest",
+    "motion-v": "latest"
+  }
+}
+```
+
+## Troubleshooting
+
+<Note>
+  **Assistant not appearing?** Check that:
+  1. `AI_GATEWAY_API_KEY` is set in your environment
+  2. Your site is running in production mode or has the key in `.env`
+  3. The MCP server is enabled and accessible at the configured path
+</Note>
+
+<Warning>
+  **API key in version control:** Never commit your `.env` file or expose your API key in client-side code. Use environment variables in your deployment platform.
+</Warning>
+
+## Advanced: Custom Implementation
+
+The assistant module is located in `modules/assistant/` and can be customized:
+
+- **Components:** `runtime/components/` - Vue components for UI
+- **Composables:** `runtime/composables/useAssistant.ts` - State management
+- **API Handler:** `runtime/server/api/search.ts` - Streaming chat endpoint
+- **Types:** `runtime/types.ts` - TypeScript definitions
+
+You can override any component or create a completely custom implementation using the same architecture.

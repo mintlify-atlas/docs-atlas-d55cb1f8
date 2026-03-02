@@ -1,0 +1,458 @@
+---
+title: Nuxt Integration
+description: Learn how Docus integrates with Nuxt, leveraging layers, modules, and the Nuxt ecosystem.
+---
+
+Docus is built as a Nuxt layer, allowing it to seamlessly extend Nuxt applications while providing full access to the Nuxt ecosystem.
+
+## Nuxt Layer Architecture
+
+Docus uses Nuxt's layer feature to provide a complete documentation framework that can be extended:
+
+```typescript [nuxt.config.ts]
+export default defineNuxtConfig({
+  extends: ['docus'],
+  // Your configuration
+})
+```
+
+### How Layers Work
+
+<Steps>
+  <Step title="Layer Extension">
+    Docus is extended using the `extends` property, inheriting all components, composables, and configuration
+  </Step>
+  
+  <Step title="Override Priority">
+    Your local files automatically override Docus layer files with the same name
+  </Step>
+  
+  <Step title="Configuration Merging">
+    Configurations are deep-merged, allowing you to customize any aspect
+  </Step>
+</Steps>
+
+<Info>
+Nuxt layers enable Docus to be fully extensible while maintaining a clean separation between framework and user code.
+</Info>
+
+## Included Modules
+
+Docus includes and configures several essential Nuxt modules:
+
+```typescript [layer/nuxt.config.ts]
+export default defineNuxtConfig({
+  modules: [
+    '@nuxt/ui',
+    '@nuxt/content',
+    '@nuxt/image',
+    '@nuxtjs/robots',
+    '@nuxtjs/mcp-toolkit',
+    'nuxt-og-image',
+    'nuxt-llms',
+  ],
+})
+```
+
+### Core Modules
+
+<Accordion title="@nuxt/ui">
+  Provides the component library and design system used throughout Docus.
+  
+  ```typescript
+  ui: {
+    colors: {
+      primary: 'emerald',
+      neutral: 'zinc',
+    },
+  }
+  ```
+  
+  [Nuxt UI Documentation](https://ui.nuxt.com)
+</Accordion>
+
+<Accordion title="@nuxt/content">
+  Powers the Markdown and MDC content system with collections and queries.
+  
+  ```typescript
+  content: {
+    experimental: { sqliteConnector: 'native' },
+    build: {
+      markdown: {
+        highlight: {
+          langs: ['bash', 'typescript', 'vue'],
+        },
+      },
+    },
+  }
+  ```
+  
+  [Nuxt Content Documentation](https://content.nuxt.com)
+</Accordion>
+
+<Accordion title="@nuxt/image">
+  Optimizes images with automatic resizing and format conversion.
+  
+  ```vue
+  <NuxtImg src="/hero.png" width="800" height="600" />
+  ```
+  
+  [Nuxt Image Documentation](https://image.nuxt.com)
+</Accordion>
+
+<Accordion title="@nuxtjs/robots">
+  Generates `robots.txt` for SEO.
+  
+  ```typescript
+  robots: {
+    groups: [{
+      userAgent: '*',
+      allow: '/',
+    }],
+    sitemap: '/sitemap.xml',
+  }
+  ```
+</Accordion>
+
+<Accordion title="@nuxtjs/mcp-toolkit">
+  Provides Model Context Protocol server for AI integration.
+  
+  ```typescript
+  mcp: {
+    name: 'Docus documentation',
+    browserRedirect: '/en/ai/mcp',
+  }
+  ```
+</Accordion>
+
+<Accordion title="nuxt-og-image">
+  Generates Open Graph images for social media.
+  
+  ```vue
+  defineOgImageComponent('OgImageDocs', {
+    title: 'Getting Started',
+    description: 'Learn how to use Docus',
+  })
+  ```
+</Accordion>
+
+<Accordion title="nuxt-llms">
+  Generates `llms.txt` files for AI consumption.
+  
+  ```typescript
+  llms: {
+    domain: 'https://docus.dev',
+    title: 'Docus',
+    description: 'Write beautiful docs with Markdown.',
+  }
+  ```
+</Accordion>
+
+## Custom Docus Modules
+
+Docus includes four internal modules that provide core functionality:
+
+### Config Module
+
+Automatically configures site metadata, SEO, and i18n:
+
+```typescript [layer/modules/config.ts]
+export default defineNuxtModule({
+  async setup(_options, nuxt) {
+    // Infer site URL and metadata
+    const url = inferSiteURL()
+    const meta = await getPackageJsonMetadata(nuxt.options.rootDir)
+    const gitInfo = await getLocalGitInfo(nuxt.options.rootDir)
+    
+    // Configure defaults
+    nuxt.options.appConfig.header = defu(nuxt.options.appConfig.header, {
+      title: meta.name || gitInfo?.name || '',
+    })
+    
+    // Setup i18n locale filtering
+    if (nuxt.options.i18n) {
+      const filteredLocales = filterLocalesByAvailability()
+      nuxt.options.i18n.strategy = 'prefix'
+    }
+  },
+})
+```
+
+<ParamField path="inferSiteURL" type="function">
+  Automatically detects site URL from environment variables or hosting platform
+</ParamField>
+
+<ParamField path="getPackageJsonMetadata" type="function">
+  Extracts name and description from `package.json`
+</ParamField>
+
+<ParamField path="getLocalGitInfo" type="function">
+  Reads Git repository information for GitHub integration
+</ParamField>
+
+### Routing Module
+
+Manages route generation and i18n routing:
+
+```typescript [layer/modules/routing.ts]
+export default defineNuxtModule({
+  setup(_options, nuxt) {
+    const isI18nEnabled = !!(nuxt.options.i18n?.locales)
+    
+    // Add landing page if not exists
+    if (!landingPageExists(nuxt.options.rootDir)) {
+      extendPages((pages) => {
+        pages.push({
+          name: isI18nEnabled ? 'lang-index' : 'index',
+          path: isI18nEnabled ? '/:lang?' : '/',
+          file: resolve('../app/templates/landing.vue'),
+        })
+      })
+    }
+  },
+})
+```
+
+### Markdown Rewrite Module
+
+Configures Vercel rewrites for AI agents to access raw Markdown:
+
+```typescript [layer/modules/markdown-rewrite.ts]
+export default defineNuxtModule({
+  setup(_options, nuxt) {
+    nuxt.hooks.hook('nitro:init', (nitro) => {
+      nitro.hooks.hook('compiled', async () => {
+        // Add routes for markdown content access
+        const routes = [
+          {
+            src: '^/$',
+            dest: '/llms.txt',
+            has: [{ type: 'header', key: 'accept', value: '(.*)text/markdown(.*)' }],
+          },
+        ]
+        
+        // Write to Vercel config
+        vcConfig.routes.unshift(...routes)
+      })
+    })
+  },
+})
+```
+
+<Warning>
+The markdown-rewrite module only activates on Vercel deployments. It's skipped in development and other hosting platforms.
+</Warning>
+
+### CSS Module
+
+Manages CSS processing and custom icon collections:
+
+```typescript [layer/modules/css.ts]
+export default defineNuxtModule({
+  setup() {
+    // Configure custom icon collections
+    const nuxt = useNuxt()
+    nuxt.options.icon ||= {}
+    nuxt.options.icon.customCollections ||= []
+    nuxt.options.icon.customCollections.push({
+      prefix: 'custom',
+      dir: join(nuxt.options.srcDir, 'assets/icons'),
+    })
+  },
+})
+```
+
+## Nuxt Content Integration
+
+Docus deeply integrates with Nuxt Content:
+
+### Content Collections
+
+Automatic collection setup based on structure:
+
+```typescript [layer/content.config.ts]
+const collections = {
+  docs: defineCollection({
+    type: 'page',
+    source: {
+      cwd,
+      include: hasDocsFolder ? 'docs/**' : '**',
+      prefix: hasDocsFolder ? '/docs' : '/',
+      exclude: ['index.md'],
+    },
+    schema: z.object({
+      links: z.array(z.object({
+        label: z.string(),
+        icon: z.string(),
+        to: z.string(),
+      })).optional(),
+    }),
+  }),
+}
+```
+
+### MDC Configuration
+
+```typescript [layer/nuxt.config.ts]
+content: {
+  build: {
+    markdown: {
+      remarkPlugins: {
+        'remark-mdc': {
+          options: {
+            autoUnwrap: true,
+          },
+        },
+      },
+    },
+  },
+},
+mdc: {
+  highlight: {
+    shikiEngine: 'javascript',
+  },
+},
+```
+
+<Tabs>
+  <Tab title="Syntax Highlighting">
+    Docus uses Shiki with JavaScript engine for fast, accurate code highlighting in multiple languages.
+  </Tab>
+  
+  <Tab title="SQLite Connector">
+    Experimental native SQLite connector improves content query performance:
+    
+    ```typescript
+    content: {
+      experimental: { sqliteConnector: 'native' },
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Nitro & Prerendering
+
+Docus configures Nitro for optimal static site generation:
+
+```typescript [layer/nuxt.config.ts]
+nitro: {
+  prerender: {
+    crawlLinks: true,
+    failOnError: false,
+    autoSubfolderIndex: false,
+  },
+},
+hooks: {
+  'nitro:config'(nitroConfig) {
+    // Add locale routes for prerendering
+    const routes = locales.map(locale => `/${locale.code}`)
+    nitroConfig.prerender.routes.push(...routes)
+    nitroConfig.prerender.routes.push('/sitemap.xml')
+  },
+},
+```
+
+<ParamField path="prerender.crawlLinks" type="boolean" default="true">
+  Automatically discovers and prerenders all linked pages
+</ParamField>
+
+<ParamField path="prerender.failOnError" type="boolean" default="false">
+  Continues prerendering even if individual pages fail
+</ParamField>
+
+## Vite Configuration
+
+Docus extends Vite configuration for optimal bundling:
+
+```typescript [layer/nuxt.config.ts]
+() => {
+  extendViteConfig((config) => {
+    config.optimizeDeps ||= {}
+    config.optimizeDeps.include ||= []
+    config.optimizeDeps.include.push('@nuxt/content > slugify')
+    
+    // Fix ESM export issues
+    if (process.env.AI_GATEWAY_API_KEY) {
+      config.optimizeDeps.include.push('@vercel/oidc')
+    }
+  })
+}
+```
+
+## Adding Modules
+
+Extend Docus with additional Nuxt modules:
+
+```typescript [nuxt.config.ts]
+export default defineNuxtConfig({
+  extends: ['docus'],
+  modules: [
+    '@nuxtjs/i18n',
+    '@nuxtjs/plausible',
+    'nuxt-studio',
+  ],
+})
+```
+
+<Steps>
+  <Step title="Install Module">
+    ```bash
+    npm install @nuxtjs/plausible
+    ```
+  </Step>
+  
+  <Step title="Add to Config">
+    Add the module to the `modules` array
+  </Step>
+  
+  <Step title="Configure">
+    Add module-specific configuration
+  </Step>
+</Steps>
+
+## Compatibility
+
+Docus is compatible with:
+
+<CardGroup cols={2}>
+  <Card title="Nuxt 3" icon="check">
+    Full support for Nuxt 3.x
+  </Card>
+  
+  <Card title="Node.js 18+" icon="check">
+    Requires Node.js 18 or higher
+  </Card>
+  
+  <Card title="TypeScript" icon="check">
+    Full TypeScript support with types
+  </Card>
+  
+  <Card title="Edge Functions" icon="check">
+    Works with Vercel Edge, Netlify Edge, Cloudflare Workers
+  </Card>
+</CardGroup>
+
+## Compatibility Date
+
+```typescript [layer/nuxt.config.ts]
+compatibilityDate: '2025-07-22',
+experimental: {
+  asyncContext: true,
+},
+```
+
+<Info>
+Docus uses modern Nuxt features including async context for improved performance and developer experience.
+</Info>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Nuxt Docs" icon="book" href="https://nuxt.com/docs" target="_blank">
+    Learn about Nuxt features
+  </Card>
+  
+  <Card title="Customization" icon="wrench" href="/concepts/customization">
+    Extend Docus functionality
+  </Card>
+</CardGroup>

@@ -1,0 +1,317 @@
+---
+title: Installation
+description: Get started with Docus - create a new documentation project in seconds.
+---
+
+# Installation
+
+Get started with Docus by creating a new documentation project using the `create-docus` CLI tool.
+
+## Quick Start
+
+The fastest way to start with Docus is using the CLI, which scaffolds a complete documentation project:
+
+<CodeGroup>
+```bash npm
+npx create-docus my-docs
+```
+
+```bash yarn
+yarn create docus my-docs
+```
+
+```bash pnpm
+pnpm create docus my-docs
+```
+</CodeGroup>
+
+<Note>
+  The CLI will prompt you to choose between two templates: `default` for single-language documentation, or `i18n` for multi-language support.
+</Note>
+
+## Step-by-Step Installation
+
+<Steps>
+  <Step title="Create your project">
+    Use the `create-docus` CLI to scaffold a new documentation project:
+    
+    <CodeGroup>
+    ```bash npm
+    npx create-docus my-docs
+    ```
+    
+    ```bash yarn
+    yarn create docus my-docs
+    ```
+    
+    ```bash pnpm
+    pnpm create docus my-docs
+    ```
+    </CodeGroup>
+    
+    For multi-language documentation, use the i18n template:
+    
+    <CodeGroup>
+    ```bash npm
+    npx create-docus my-docs -t i18n
+    ```
+    
+    ```bash yarn
+    yarn create docus my-docs -t i18n
+    ```
+    
+    ```bash pnpm
+    pnpm create docus my-docs -t i18n
+    ```
+    </CodeGroup>
+  </Step>
+  
+  <Step title="Navigate to your project">
+    Move into your newly created documentation directory:
+    
+    ```bash
+    cd my-docs
+    ```
+  </Step>
+  
+  <Step title="Start development server">
+    Start your documentation site in development mode:
+    
+    <CodeGroup>
+    ```bash npm
+    npm run dev
+    ```
+    
+    ```bash yarn
+    yarn dev
+    ```
+    
+    ```bash pnpm
+    pnpm dev
+    ```
+    </CodeGroup>
+    
+    Your documentation will be available at `http://localhost:3000`
+  </Step>
+  
+  <Step title="Start writing">
+    Open the `content/` directory and start writing your documentation in Markdown!
+  </Step>
+</Steps>
+
+## What the CLI Creates
+
+The `create-docus` CLI scaffolds a minimal project structure:
+
+```bash
+my-docs/
+├── content/              # Your markdown content
+│   ├── index.md         # Homepage
+│   └── docs/            # Documentation pages
+├── public/              # Static assets
+└── package.json         # Dependencies and scripts
+```
+
+<Info>
+  The generated project uses the Docus layer via the `--extends docus` flag in package.json scripts. This keeps your project clean and minimal.
+</Info>
+
+## Templates
+
+### Default Template
+
+The default template creates a basic documentation project ready for single-language content:
+
+```bash
+npx create-docus my-docs
+```
+
+This includes:
+- Basic content structure
+- Single-language routing
+- Minimal configuration
+
+### I18n Template
+
+Use the `-t i18n` flag to create a project with internationalization support:
+
+```bash
+npx create-docus my-docs -t i18n
+```
+
+The i18n template includes:
+- Pre-configured `@nuxtjs/i18n` module
+- Locale-based content structure (`content/en/`, `content/fr/`)
+- Built-in language switcher
+- Automatic URL prefixing (`/en/docs`, `/fr/docs`)
+
+## Manual Installation
+
+If you prefer to set up Docus manually in an existing Nuxt project, you can install the layer directly:
+
+<Steps>
+  <Step title="Install dependencies">
+    Install the required packages:
+    
+    <CodeGroup>
+    ```bash npm
+    npm install docus better-sqlite3 nuxt
+    ```
+    
+    ```bash yarn
+    yarn add docus better-sqlite3 nuxt
+    ```
+    
+    ```bash pnpm
+    pnpm add docus better-sqlite3 nuxt
+    ```
+    </CodeGroup>
+    
+    <Note>
+      `better-sqlite3` is required by Nuxt Content for the native SQLite connector.
+    </Note>
+  </Step>
+  
+  <Step title="Configure Nuxt">
+    Add the Docus layer to your `nuxt.config.ts`:
+    
+    ```typescript nuxt.config.ts
+    export default defineNuxtConfig({
+      extends: ['docus']
+    })
+    ```
+  </Step>
+  
+  <Step title="Update package.json scripts">
+    Add the development and build scripts:
+    
+    ```json package.json
+    {
+      "scripts": {
+        "dev": "nuxt dev --extends docus",
+        "build": "nuxt build --extends docus"
+      }
+    }
+    ```
+  </Step>
+  
+  <Step title="Create content directory">
+    Create a `content/` directory and add your first Markdown file:
+    
+    ```bash
+    mkdir content
+    echo "# Hello Docus" > content/index.md
+    ```
+  </Step>
+</Steps>
+
+## Adding Internationalization
+
+To add i18n support to your Docus project:
+
+<Steps>
+  <Step title="Install i18n module">
+    <CodeGroup>
+    ```bash npm
+    npm install @nuxtjs/i18n
+    ```
+    
+    ```bash yarn
+    yarn add @nuxtjs/i18n
+    ```
+    
+    ```bash pnpm
+    pnpm add @nuxtjs/i18n
+    ```
+    </CodeGroup>
+  </Step>
+  
+  <Step title="Configure i18n">
+    Add i18n configuration to your `nuxt.config.ts`:
+    
+    ```typescript nuxt.config.ts
+    export default defineNuxtConfig({
+      extends: ['docus'],
+      modules: ['@nuxtjs/i18n'],
+      i18n: {
+        defaultLocale: 'en',
+        locales: [
+          { code: 'en', name: 'English' },
+          { code: 'fr', name: 'Français' },
+        ],
+      }
+    })
+    ```
+  </Step>
+  
+  <Step title="Organize content by locale">
+    Restructure your content directory with locale folders:
+    
+    ```bash
+    content/
+    ├── en/
+    │   ├── index.md
+    │   └── guide/
+    │       └── introduction.md
+    └── fr/
+        ├── index.md
+        └── guide/
+            └── introduction.md
+    ```
+  </Step>
+</Steps>
+
+## Deployment
+
+Docus is built on Nuxt, so it can be deployed to any platform that supports Node.js:
+
+<CardGroup cols={2}>
+  <Card title="Vercel" icon="arrow-up-right" href="https://vercel.com" target="_blank">
+    Deploy with zero configuration using Vercel's Nuxt integration.
+  </Card>
+  
+  <Card title="Netlify" icon="arrow-up-right" href="https://netlify.com" target="_blank">
+    Deploy with automatic builds and preview deployments.
+  </Card>
+  
+  <Card title="Cloudflare Pages" icon="arrow-up-right" href="https://pages.cloudflare.com" target="_blank">
+    Deploy to Cloudflare's edge network for global performance.
+  </Card>
+  
+  <Card title="Nuxt Deployment" icon="book" href="https://nuxt.com/deploy" target="_blank">
+    See the official Nuxt deployment documentation for more options.
+  </Card>
+</CardGroup>
+
+## Online Development
+
+You can also start with an online template and deploy directly from Vercel:
+
+<Card
+  title="Deploy with Vercel"
+  icon="arrow-up-right"
+  href="https://vercel.com/new/clone?demo-description=Markdown-based%20documentation%20starter%20with%20Nuxt%20and%20Vue%20components.&demo-title=Docus&demo-url=https%3A%2F%2Fdocus.dev%2F&from=templates&project-name=Docus&repository-name=docus&repository-url=https%3A%2F%2Fgithub.com%2Fnuxt-content%2Fdocus%2Ftree%2Fmain%2F.starters%2Fdefault"
+  target="_blank"
+>
+  Click to deploy the Docus template and create your git repository directly from Vercel.
+</Card>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Project Structure"
+    icon="folder"
+    href="/project-structure"
+  >
+    Learn about the project structure and configuration options
+  </Card>
+  
+  <Card
+    title="Troubleshooting"
+    icon="wrench"
+    href="/troubleshooting"
+  >
+    Common issues and solutions when working with Docus
+  </Card>
+</CardGroup>

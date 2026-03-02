@@ -1,0 +1,401 @@
+---
+title: Theming
+description: Customize your Docus site's appearance with color themes, design tokens, and UI component styling.
+---
+
+Docus uses Nuxt UI's theming system, allowing you to customize colors, icons, and component variants throughout your documentation site.
+
+## Color System
+
+Docus supports a comprehensive color system with primary and neutral color palettes:
+
+```typescript [app.config.ts]
+export default defineAppConfig({
+  ui: {
+    colors: {
+      primary: 'emerald',
+      neutral: 'zinc',
+    },
+  },
+})
+```
+
+### Primary Colors
+
+<ParamField path="ui.colors.primary" type="string" default="green">
+  Primary color of your UI. Choose from:
+  
+  - `red`
+  - `orange`
+  - `amber`
+  - `yellow`
+  - `lime`
+  - `green`
+  - `emerald`
+  - `teal`
+  - `cyan`
+  - `sky`
+  - `blue`
+  - `indigo`
+  - `violet`
+  - `purple`
+  - `fuchsia`
+  - `pink`
+  - `rose`
+</ParamField>
+
+### Neutral Colors
+
+<ParamField path="ui.colors.neutral" type="string" default="slate">
+  Neutral color for backgrounds and text. Choose from:
+  
+  - `slate`
+  - `gray`
+  - `zinc`
+  - `neutral`
+  - `stone`
+</ParamField>
+
+<Tabs>
+  <Tab title="Preview">
+    ```typescript
+    ui: {
+      colors: {
+        primary: 'emerald',
+        neutral: 'zinc',
+      },
+    }
+    ```
+  </Tab>
+  
+  <Tab title="Result">
+    This configuration creates a modern look with emerald accents on a zinc base, perfect for developer documentation.
+  </Tab>
+</Tabs>
+
+## Icon Configuration
+
+Customize icons used throughout the interface:
+
+```typescript [app.config.ts]
+export default defineAppConfig({
+  ui: {
+    icons: {
+      search: 'i-lucide-search',
+      dark: 'i-lucide-moon',
+      light: 'i-lucide-sun',
+      external: 'i-lucide-external-link',
+      chevron: 'i-lucide-chevron-down',
+      hash: 'i-lucide-hash',
+    },
+  },
+})
+```
+
+<ParamField path="ui.icons.search" type="string" default="i-lucide-search">
+  Icon displayed in the search bar
+</ParamField>
+
+<ParamField path="ui.icons.dark" type="string" default="i-lucide-moon">
+  Icon for color mode button in dark mode
+</ParamField>
+
+<ParamField path="ui.icons.light" type="string" default="i-lucide-sun">
+  Icon for color mode button in light mode
+</ParamField>
+
+<ParamField path="ui.icons.external" type="string" default="i-lucide-external-link">
+  Icon for external links
+</ParamField>
+
+<ParamField path="ui.icons.chevron" type="string" default="i-lucide-chevron-down">
+  Icon for chevrons in navigation
+</ParamField>
+
+<ParamField path="ui.icons.hash" type="string" default="i-lucide-hash">
+  Icon for heading anchor links
+</ParamField>
+
+<Info>
+Docus uses Iconify with the Lucide icon set by default. You can use any icon from [Iconify](https://iconify.design/).
+</Info>
+
+## Custom Icon Collections
+
+Add custom SVG icons from your project:
+
+```typescript [nuxt.config.ts]
+export default defineNuxtConfig({
+  icon: {
+    customCollections: [
+      {
+        prefix: 'custom',
+        dir: './app/assets/icons',
+      },
+    ],
+    clientBundle: {
+      scan: true,
+      includeCustomCollections: true,
+    },
+  },
+})
+```
+
+<Steps>
+  <Step title="Create Icons Directory">
+    Create a directory for your custom SVG icons:
+    
+    ```bash
+    mkdir -p app/assets/icons
+    ```
+  </Step>
+  
+  <Step title="Add SVG Files">
+    Place SVG files in the directory:
+    
+    ```bash
+    app/assets/icons/
+    ├── ai.svg
+    └── logo.svg
+    ```
+  </Step>
+  
+  <Step title="Use Custom Icons">
+    Reference them with your custom prefix:
+    
+    ```vue
+    <UIcon name="i-custom-ai" />
+    ```
+  </Step>
+</Steps>
+
+## Component Styling
+
+Customize individual component variants and slots using the `ui` configuration:
+
+```typescript [app.config.ts]
+export default defineAppConfig({
+  ui: {
+    commandPalette: {
+      slots: {
+        item: 'items-center',
+        input: '[&_.iconify]:size-4 [&_.iconify]:mx-0.5',
+        itemLeadingIcon: 'size-4 mx-0.5',
+      },
+    },
+    contentNavigation: {
+      slots: {
+        linkLeadingIcon: 'size-4 mr-1',
+        linkTrailing: 'hidden',
+      },
+      defaultVariants: {
+        variant: 'link',
+      },
+    },
+    pageLinks: {
+      slots: {
+        linkLeadingIcon: 'size-4',
+        linkLabelExternalIcon: 'size-2.5',
+      },
+    },
+  },
+})
+```
+
+### Component Slots
+
+<Accordion title="Command Palette">
+  ```typescript
+  commandPalette: {
+    slots: {
+      item: 'items-center',
+      input: '[&_.iconify]:size-4 [&_.iconify]:mx-0.5',
+      itemLeadingIcon: 'size-4 mx-0.5',
+    },
+  }
+  ```
+  
+  Customize the search command palette appearance.
+</Accordion>
+
+<Accordion title="Content Navigation">
+  ```typescript
+  contentNavigation: {
+    slots: {
+      linkLeadingIcon: 'size-4 mr-1',
+      linkTrailing: 'hidden',
+    },
+    defaultVariants: {
+      variant: 'link',
+    },
+  }
+  ```
+  
+  Style the sidebar navigation component.
+</Accordion>
+
+<Accordion title="Page Links">
+  ```typescript
+  pageLinks: {
+    slots: {
+      linkLeadingIcon: 'size-4',
+      linkLabelExternalIcon: 'size-2.5',
+    },
+  }
+  ```
+  
+  Customize page header and footer links.
+</Accordion>
+
+<Accordion title="Page Hero">
+  ```typescript
+  pageHero: {
+    slots: {
+      title: 'font-semibold sm:text-6xl',
+      container: '!pb-0',
+    },
+  }
+  ```
+  
+  Style the page hero section on landing pages.
+</Accordion>
+
+## Dark Mode
+
+Docus includes built-in dark mode support. Users can toggle between light and dark themes using the color mode button in the header.
+
+### Force Color Mode
+
+```typescript [nuxt.config.ts]
+export default defineNuxtConfig({
+  colorMode: {
+    preference: 'dark', // 'light', 'dark', or 'system'
+  },
+})
+```
+
+<ParamField path="colorMode.preference" type="string" default="system">
+  Default color mode: `light`, `dark`, or `system`
+</ParamField>
+
+## CSS Customization
+
+Add custom CSS to further customize your theme:
+
+```css [assets/css/main.css]
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --header-height: 64px;
+  }
+}
+
+@layer components {
+  .prose {
+    @apply max-w-none;
+  }
+}
+```
+
+Then import it in your Nuxt config:
+
+```typescript [nuxt.config.ts]
+export default defineNuxtConfig({
+  css: ['~/assets/css/main.css'],
+})
+```
+
+<Warning>
+When customizing CSS, be mindful of Nuxt UI's existing styles to avoid conflicts. Use Tailwind's `@layer` directive for better organization.
+</Warning>
+
+## Typography
+
+Docus uses the system font stack by default. Customize typography by overriding Tailwind configuration:
+
+```typescript [tailwind.config.ts]
+import type { Config } from 'tailwindcss'
+
+export default <Partial<Config>>{
+  theme: {
+    extend: {
+      fontFamily: {
+        sans: ['Inter', 'sans-serif'],
+        mono: ['Fira Code', 'monospace'],
+      },
+    },
+  },
+}
+```
+
+<Steps>
+  <Step title="Install Fonts">
+    Add font files or use a font loading service:
+    
+    ```typescript [nuxt.config.ts]
+    export default defineNuxtConfig({
+      modules: ['@nuxtjs/google-fonts'],
+      googleFonts: {
+        families: {
+          Inter: [400, 500, 600, 700],
+          'Fira Code': [400, 500],
+        },
+      },
+    })
+    ```
+  </Step>
+  
+  <Step title="Configure Tailwind">
+    Update your Tailwind config to use the new fonts
+  </Step>
+  
+  <Step title="Apply Fonts">
+    The fonts will automatically apply to your documentation
+  </Step>
+</Steps>
+
+## Syntax Highlighting
+
+Customize code block syntax highlighting:
+
+```typescript [nuxt.config.ts]
+export default defineNuxtConfig({
+  content: {
+    build: {
+      markdown: {
+        highlight: {
+          langs: ['bash', 'typescript', 'javascript', 'vue', 'json'],
+        },
+      },
+    },
+  },
+  mdc: {
+    highlight: {
+      shikiEngine: 'javascript',
+    },
+  },
+})
+```
+
+<ParamField path="content.build.markdown.highlight.langs" type="array">
+  Array of language IDs for syntax highlighting support
+</ParamField>
+
+<ParamField path="mdc.highlight.shikiEngine" type="string" default="javascript">
+  Shiki engine to use: `javascript` or `wasm`
+</ParamField>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Customization" icon="wrench" href="/concepts/customization">
+    Learn how to override components
+  </Card>
+  
+  <Card title="Nuxt UI Docs" icon="book-open" href="https://ui.nuxt.com" target="_blank">
+    Explore Nuxt UI theming system
+  </Card>
+</CardGroup>

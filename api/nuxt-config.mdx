@@ -1,0 +1,373 @@
+---
+title: Nuxt Config
+description: Configure Nuxt and Docus modules in nuxt.config.ts
+icon: i-simple-icons-nuxtdotjs
+---
+
+The `nuxt.config.ts` file is the main configuration file for Nuxt. This page covers Docus-specific configuration options and common Nuxt options used with Docus.
+
+## Extending Docus
+
+To use Docus in your project, extend the Docus layer:
+
+<CodeGroup>
+```ts nuxt.config.ts
+export default defineNuxtConfig({
+  extends: ['docus']
+})
+```
+</CodeGroup>
+
+The `extends` property allows you to inherit configuration from Docus while customizing your site.
+
+## Site Configuration
+
+### Site Metadata
+
+<ParamField path="site.name" type="string">
+  Name of your site. Used in SEO meta tags and as fallback for page titles.
+</ParamField>
+
+<ParamField path="site.url" type="string">
+  Full URL of your site. Required for canonical URLs and Open Graph tags.
+</ParamField>
+
+<CodeGroup>
+```ts nuxt.config.ts
+export default defineNuxtConfig({
+  extends: ['docus'],
+  site: {
+    name: 'Docus',
+    url: 'https://docus.dev'
+  }
+})
+```
+</CodeGroup>
+
+## Markdown Configuration
+
+### MDC Syntax Highlighting
+
+<ParamField path="mdc.highlight.shikiEngine" type="string" default="oniguruma">
+  Syntax highlighting engine for code blocks.
+  
+  **Options:**
+  - `javascript` - Faster, works in browser
+  - `oniguruma` - More accurate, requires WASM
+</ParamField>
+
+<ParamField path="mdc.highlight.theme" type="string | object">
+  Shiki theme for syntax highlighting. Can be a theme name or an object with `light` and `dark` themes.
+</ParamField>
+
+<CodeGroup>
+```ts nuxt.config.ts
+export default defineNuxtConfig({
+  extends: ['docus'],
+  mdc: {
+    highlight: {
+      shikiEngine: 'javascript',
+      theme: {
+        light: 'github-light',
+        dark: 'github-dark'
+      }
+    }
+  }
+})
+```
+</CodeGroup>
+
+## Internationalization (i18n)
+
+Docus supports multi-language documentation using `@nuxtjs/i18n`.
+
+### Basic i18n Setup
+
+<ParamField path="i18n.defaultLocale" type="string" default="en">
+  Default locale for your documentation.
+</ParamField>
+
+<ParamField path="i18n.locales" type="array">
+  Array of locale configuration objects. Each locale should have `code` and `name` properties.
+</ParamField>
+
+<ParamField path="i18n.strategy" type="string" default="prefix_except_default">
+  URL strategy for locale paths.
+  
+  **Options:**
+  - `no_prefix` - No locale prefix in URLs
+  - `prefix_except_default` - Prefix for all except default locale
+  - `prefix` - Prefix for all locales
+  - `prefix_and_default` - Prefix for all, with redirect from root
+</ParamField>
+
+<CodeGroup>
+```ts nuxt.config.ts
+export default defineNuxtConfig({
+  extends: ['docus'],
+  modules: ['@nuxtjs/i18n'],
+  i18n: {
+    defaultLocale: 'en',
+    locales: [
+      {
+        code: 'en',
+        name: 'English'
+      },
+      {
+        code: 'fr',
+        name: 'Français'
+      }
+    ]
+  }
+})
+```
+</CodeGroup>
+
+## AI Configuration
+
+### LLMs.txt Generation
+
+<ParamField path="llms.domain" type="string">
+  Domain for the llms.txt file generation.
+</ParamField>
+
+<ParamField path="llms.title" type="string">
+  Title for the LLM documentation.
+</ParamField>
+
+<ParamField path="llms.description" type="string">
+  Description for the LLM documentation.
+</ParamField>
+
+<ParamField path="llms.full.title" type="string">
+  Title for the full LLM documentation export.
+</ParamField>
+
+<ParamField path="llms.full.description" type="string">
+  Description for the full LLM documentation export.
+</ParamField>
+
+<CodeGroup>
+```ts nuxt.config.ts
+export default defineNuxtConfig({
+  extends: ['docus'],
+  llms: {
+    domain: 'https://docus.dev',
+    title: 'Docus',
+    description: 'Write beautiful docs with Markdown.',
+    full: {
+      title: 'Docus Documentation',
+      description: 'Complete documentation for Docus.'
+    }
+  }
+})
+```
+</CodeGroup>
+
+### MCP Server
+
+<ParamField path="mcp.name" type="string">
+  Name of the MCP server for AI integrations.
+</ParamField>
+
+<ParamField path="mcp.browserRedirect" type="string">
+  Path to redirect browsers to when they access the MCP endpoint.
+</ParamField>
+
+<CodeGroup>
+```ts nuxt.config.ts
+export default defineNuxtConfig({
+  extends: ['docus'],
+  mcp: {
+    name: 'Docus documentation',
+    browserRedirect: '/ai/mcp'
+  }
+})
+```
+</CodeGroup>
+
+## Nuxt Studio Integration
+
+<ParamField path="studio.route" type="string" default="/_studio">
+  Route path for the Nuxt Studio admin interface.
+</ParamField>
+
+<ParamField path="studio.repository.provider" type="string">
+  Git provider for content repository.
+  
+  **Options:** `github`, `gitlab`
+</ParamField>
+
+<ParamField path="studio.repository.owner" type="string">
+  Repository owner/organization name.
+</ParamField>
+
+<ParamField path="studio.repository.repo" type="string">
+  Repository name.
+</ParamField>
+
+<ParamField path="studio.repository.rootDir" type="string">
+  Root directory for content in the repository.
+</ParamField>
+
+<CodeGroup>
+```ts nuxt.config.ts
+export default defineNuxtConfig({
+  extends: ['docus'],
+  modules: ['nuxt-studio'],
+  studio: {
+    route: '/admin',
+    repository: {
+      provider: 'github',
+      owner: 'nuxt-content',
+      repo: 'docus',
+      rootDir: 'docs'
+    }
+  }
+})
+```
+</CodeGroup>
+
+## Common Modules
+
+### Analytics
+
+<ParamField path="modules" type="array">
+  Array of Nuxt modules to enable. Docus works well with analytics modules.
+</ParamField>
+
+<CodeGroup>
+```ts nuxt.config.ts
+export default defineNuxtConfig({
+  extends: ['docus'],
+  modules: [
+    '@nuxtjs/plausible',
+    '@nuxtjs/i18n',
+    'nuxt-studio'
+  ]
+})
+```
+</CodeGroup>
+
+## Build Configuration
+
+### CSS
+
+<ParamField path="css" type="array">
+  Global CSS files to include.
+</ParamField>
+
+<CodeGroup>
+```ts nuxt.config.ts
+export default defineNuxtConfig({
+  extends: ['docus'],
+  css: ['~/assets/css/main.css']
+})
+```
+</CodeGroup>
+
+### Vite Configuration
+
+<ParamField path="vite.build.sourcemap" type="boolean" default="false">
+  Enable or disable source maps for production builds.
+</ParamField>
+
+<CodeGroup>
+```ts nuxt.config.ts
+export default defineNuxtConfig({
+  extends: ['docus'],
+  vite: {
+    build: {
+      sourcemap: false
+    }
+  }
+})
+```
+</CodeGroup>
+
+### Compatibility Date
+
+<ParamField path="compatibilityDate" type="string">
+  Nuxt compatibility date for feature flags and behavior changes.
+</ParamField>
+
+<CodeGroup>
+```ts nuxt.config.ts
+export default defineNuxtConfig({
+  extends: ['docus'],
+  compatibilityDate: '2025-07-18'
+})
+```
+</CodeGroup>
+
+## Complete Example
+
+<CodeGroup>
+```ts nuxt.config.ts
+export default defineNuxtConfig({
+  extends: ['docus'],
+  modules: [
+    '@nuxtjs/plausible',
+    '@nuxtjs/i18n',
+    'nuxt-studio'
+  ],
+  css: ['~/assets/css/main.css'],
+  
+  site: {
+    name: 'Docus',
+    url: 'https://docus.dev'
+  },
+  
+  mdc: {
+    highlight: {
+      shikiEngine: 'javascript',
+      theme: {
+        light: 'github-light',
+        dark: 'github-dark'
+      }
+    }
+  },
+  
+  compatibilityDate: '2025-07-18',
+  
+  vite: {
+    build: {
+      sourcemap: false
+    }
+  },
+  
+  i18n: {
+    defaultLocale: 'en',
+    locales: [
+      { code: 'en', name: 'English' },
+      { code: 'fr', name: 'Français' }
+    ]
+  },
+  
+  llms: {
+    domain: 'https://docus.dev',
+    title: 'Docus',
+    description: 'Write beautiful docs with Markdown.',
+    full: {
+      title: 'Docus Documentation',
+      description: 'Complete documentation for Docus.'
+    }
+  },
+  
+  mcp: {
+    name: 'Docus documentation',
+    browserRedirect: '/ai/mcp'
+  },
+  
+  studio: {
+    route: '/admin',
+    repository: {
+      provider: 'github',
+      owner: 'nuxt-content',
+      repo: 'docus',
+      rootDir: 'docs'
+    }
+  }
+})
+```
+</CodeGroup>

@@ -1,0 +1,325 @@
+---
+title: Images and Embeds
+description: Add images, videos, and embedded media to your documentation
+icon: image
+---
+
+Docus provides multiple ways to include visual content in your documentation, from simple images to embedded videos and interactive media.
+
+## Images
+
+### Basic Image Syntax
+
+Use standard Markdown syntax to include images:
+
+```markdown
+![Nuxt Social Image](https://nuxt.com/new-social.jpg)
+```
+
+Result:
+
+![Nuxt Social Image](https://nuxt.com/new-social.jpg)
+
+### Local Images
+
+Reference images stored in your project's public directory:
+
+```markdown
+![Mountain landscape](/images/mountains.webp)
+```
+
+<Note>
+Docus uses the `<NuxtImg>` component under the hood instead of the native `img` tag, providing automatic optimization and lazy loading.
+</Note>
+
+### Image Optimization
+
+Docus integrates with [Nuxt Image](https://image.nuxt.com/) for automatic image optimization:
+
+- **Automatic format conversion** - WebP and AVIF support
+- **Responsive images** - Multiple sizes for different screens
+- **Lazy loading** - Images load as users scroll
+- **Blur placeholder** - Smooth loading experience
+
+<Tip>
+Place images in the `public/` directory to reference them with absolute paths starting with `/`.
+</Tip>
+
+## Image Sizing
+
+Control image dimensions using HTML attributes:
+
+```html
+<img src="/images/logo.svg" alt="Logo" width="200" height="100" />
+```
+
+Or use the MDC syntax:
+
+```mdc
+:img{src="/images/logo.svg" alt="Logo" width="200"}
+```
+
+## Videos
+
+### Embedded Videos
+
+Embed videos using the MDC video component:
+
+```mdc
+:video{autoplay controls loop src="https://example.com/video.mp4"}
+```
+
+<Note>
+Supported video formats include MP4, WebM, and OGG. Always provide a `controls` attribute for better accessibility.
+</Note>
+
+### Video Attributes
+
+Common video attributes:
+
+| Attribute  | Description                              |
+| ---------- | ---------------------------------------- |
+| `autoplay` | Start playing automatically              |
+| `controls` | Show playback controls                   |
+| `loop`     | Loop the video                           |
+| `muted`    | Mute audio (required for autoplay)       |
+| `poster`   | Thumbnail image before video plays       |
+
+<Warning>
+Autoplay videos should always be muted to comply with browser policies and provide a better user experience.
+</Warning>
+
+## YouTube Embeds
+
+Embed YouTube videos using the standard iframe syntax or MDC component:
+
+```html
+<iframe 
+  width="560" 
+  height="315" 
+  src="https://www.youtube.com/embed/dQw4w9WgXcQ" 
+  title="YouTube video" 
+  frameborder="0" 
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+  allowfullscreen
+></iframe>
+```
+
+<Tip>
+Use YouTube's "Share" → "Embed" option to get the correct iframe code with privacy-enhanced mode.
+</Tip>
+
+## CodePen Embeds
+
+Embed CodePen examples for interactive code demonstrations:
+
+```html
+<iframe 
+  height="400" 
+  style="width: 100%;" 
+  scrolling="no" 
+  title="Example Pen" 
+  src="https://codepen.io/username/embed/penid?default-tab=html,result" 
+  frameborder="no" 
+  loading="lazy" 
+  allowtransparency="true" 
+  allowfullscreen="true"
+>
+</iframe>
+```
+
+## Twitter/X Embeds
+
+Embed tweets using Twitter's embed code:
+
+```html
+<blockquote class="twitter-tweet">
+  <p lang="en" dir="ltr">Tweet text here</p>
+  <a href="https://twitter.com/user/status/123456">Date</a>
+</blockquote>
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+```
+
+## GitHub Gists
+
+Embed GitHub Gists for code snippets:
+
+```html
+<script src="https://gist.github.com/username/gist-id.js"></script>
+```
+
+## Interactive Embeds
+
+<Tabs>
+  <Tab title="Figma">
+    Embed Figma prototypes:
+    
+    ```html
+    <iframe 
+      style="border: 1px solid rgba(0, 0, 0, 0.1);" 
+      width="800" 
+      height="450" 
+      src="https://www.figma.com/embed?embed_host=share&url=YOUR_FIGMA_URL" 
+      allowfullscreen
+    ></iframe>
+    ```
+  </Tab>
+  <Tab title="Loom">
+    Embed Loom videos:
+    
+    ```html
+    <div style="position: relative; padding-bottom: 56.25%; height: 0;">
+      <iframe 
+        src="https://www.loom.com/embed/VIDEO_ID" 
+        frameborder="0" 
+        webkitallowfullscreen 
+        mozallowfullscreen 
+        allowfullscreen 
+        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
+      ></iframe>
+    </div>
+    ```
+  </Tab>
+  <Tab title="Miro">
+    Embed Miro boards:
+    
+    ```html
+    <iframe 
+      width="768" 
+      height="432" 
+      src="https://miro.com/app/embed/BOARD_ID" 
+      frameborder="0" 
+      scrolling="no" 
+      allowfullscreen
+    ></iframe>
+    ```
+  </Tab>
+</Tabs>
+
+## Image Galleries
+
+Create image galleries using card groups:
+
+```mdc
+<CardGroup cols={2}>
+  <Card>
+    ![Image 1](/images/example-1.jpg)
+  </Card>
+  <Card>
+    ![Image 2](/images/example-2.jpg)
+  </Card>
+  <Card>
+    ![Image 3](/images/example-3.jpg)
+  </Card>
+  <Card>
+    ![Image 4](/images/example-4.jpg)
+  </Card>
+</CardGroup>
+```
+
+```mdc
+::card-group
+  :::card
+  ![Image 1](/images/example-1.jpg)
+  :::
+  :::card
+  ![Image 2](/images/example-2.jpg)
+  :::
+::
+```
+
+## SVG Images
+
+SVG files work perfectly in documentation:
+
+```markdown
+![Logo](/logo.svg)
+```
+
+<Tip>
+SVG images scale perfectly at any size and support transparency, making them ideal for logos and diagrams.
+</Tip>
+
+## Accessibility Best Practices
+
+<AccordionGroup>
+  <Accordion title="Always include alt text">
+    Every image should have descriptive alt text for screen readers:
+    
+    ```markdown
+    ![A developer writing code on a laptop](/developer.jpg)
+    ```
+  </Accordion>
+  <Accordion title="Use descriptive filenames">
+    Name files descriptively: `authentication-flow.png` instead of `img123.png`
+  </Accordion>
+  <Accordion title="Provide captions when needed">
+    For complex diagrams, include explanatory captions below the image.
+  </Accordion>
+  <Accordion title="Include video transcripts">
+    For important video content, provide text transcripts or summaries.
+  </Accordion>
+</AccordionGroup>
+
+## Performance Optimization
+
+<Tabs>
+  <Tab title="Image Formats">
+    Choose the right format:
+    
+    - **JPEG** - Photos and complex images
+    - **PNG** - Images with transparency
+    - **WebP** - Modern format with better compression
+    - **SVG** - Logos, icons, and simple graphics
+  </Tab>
+  <Tab title="File Size">
+    Optimize file sizes:
+    
+    - Keep images under 500KB when possible
+    - Use compression tools like [TinyPNG](https://tinypng.com/)
+    - Resize images to their display dimensions
+    - Consider responsive image sets for different screen sizes
+  </Tab>
+  <Tab title="Loading Strategy">
+    Control loading behavior:
+    
+    - Use lazy loading for images below the fold
+    - Preload critical images in the viewport
+    - Implement blur placeholders for better perceived performance
+  </Tab>
+</Tabs>
+
+## CDN and External Images
+
+When using external images, consider:
+
+<Warning>
+External images from third-party CDNs may:
+- Slow down page load times
+- Introduce privacy concerns
+- Become unavailable if the external source goes down
+
+Whenever possible, host critical images in your project.
+</Warning>
+
+## Image Organization
+
+Organize your images effectively:
+
+```
+public/
+├── images/
+│   ├── screenshots/
+│   │   ├── dashboard.png
+│   │   └── settings.png
+│   ├── diagrams/
+│   │   ├── architecture.svg
+│   │   └── workflow.svg
+│   └── logos/
+│       ├── logo.svg
+│       └── logo-dark.svg
+```
+
+<Tip>
+Use a consistent naming convention and directory structure to make images easy to find and maintain.
+</Tip>

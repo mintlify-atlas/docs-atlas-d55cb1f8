@@ -1,0 +1,385 @@
+---
+title: Configuration
+description: Configure your Docus site using app.config.ts and nuxt.schema.ts for complete control over appearance and behavior.
+---
+
+Docus provides a comprehensive configuration system through `app.config.ts` and type-safe schema definitions via `nuxt.schema.ts`.
+
+## App Configuration
+
+The `app.config.ts` file is the primary configuration file for your Docus site:
+
+```typescript [app.config.ts]
+export default defineAppConfig({
+  header: {
+    title: 'Docus',
+    logo: {
+      light: '/logo/logo-dark.svg',
+      dark: '/logo/logo-light.svg',
+      alt: 'Docus Logo',
+    },
+  },
+  socials: {
+    x: 'https://x.com/nuxt_js',
+    discord: 'https://discord.com/invite/ps2h6QT',
+    github: 'https://github.com/nuxt/nuxt',
+  },
+  github: {
+    rootDir: 'docs',
+  },
+})
+```
+
+## Header Configuration
+
+Customize your site's header including title, logo, and branding:
+
+<ParamField path="header.title" type="string" default="">
+  Title displayed in the header
+</ParamField>
+
+### Logo Configuration
+
+<ParamField path="header.logo.light" type="string">
+  Logo image for light mode (media path)
+  
+  ```typescript
+  logo: {
+    light: '/logo/logo-dark.svg'
+  }
+  ```
+</ParamField>
+
+<ParamField path="header.logo.dark" type="string">
+  Logo image for dark mode (media path)
+</ParamField>
+
+<ParamField path="header.logo.alt" type="string" default="">
+  Alt text for accessibility
+</ParamField>
+
+<ParamField path="header.logo.wordmark" type="object">
+  Wordmark (text logo) configuration for brand assets
+  
+  <Accordion title="Wordmark Schema">
+    ```typescript
+    wordmark: {
+      light: string  // Light mode wordmark image
+      dark: string   // Dark mode wordmark image
+    }
+    ```
+  </Accordion>
+</ParamField>
+
+<ParamField path="header.logo.display" type="string" default="logo">
+  Which logo variant to show: `"logo"` for icon or `"wordmark"` for full wordmark
+</ParamField>
+
+<ParamField path="header.logo.favicon" type="string" default="/favicon.ico">
+  Path to favicon file for brand asset downloads
+</ParamField>
+
+<ParamField path="header.logo.brandAssetsUrl" type="string">
+  Link to full brand assets page (shown in logo context menu)
+</ParamField>
+
+<ParamField path="header.logo.class" type="string">
+  Additional CSS classes to apply to the logo image
+</ParamField>
+
+## SEO Configuration
+
+Configure SEO settings for your documentation:
+
+```typescript [app.config.ts]
+export default defineAppConfig({
+  seo: {
+    titleTemplate: '%s - Docus',
+    title: 'Docus',
+    description: 'Write beautiful docs with Markdown.',
+  },
+})
+```
+
+<ParamField path="seo.title" type="string" default="">
+  Default site title
+</ParamField>
+
+<ParamField path="seo.description" type="string" default="">
+  Default site description for meta tags
+</ParamField>
+
+<ParamField path="seo.titleTemplate" type="string">
+  Template for page titles. Use `%s` as placeholder for page title
+  
+  ```typescript
+  titleTemplate: '%s - My Docs' // "Getting Started - My Docs"
+  ```
+</ParamField>
+
+<Info>
+SEO configuration is automatically inferred from your `package.json` if not explicitly set.
+</Info>
+
+## Social Links
+
+Add social media links to your header:
+
+```typescript [app.config.ts]
+export default defineAppConfig({
+  socials: {
+    x: 'https://x.com/nuxt_js',
+    discord: 'https://discord.com/invite/ps2h6QT',
+    github: 'https://github.com/nuxt/nuxt',
+    nuxt: 'https://nuxt.com',
+  },
+})
+```
+
+<ParamField path="socials" type="object" default="{}">
+  Social network links configuration. Supports any key-value pairs where the key is the platform name and value is the URL.
+</ParamField>
+
+## GitHub Configuration
+
+Configure GitHub integration for "Edit this page" functionality:
+
+```typescript [app.config.ts]
+export default defineAppConfig({
+  github: {
+    url: 'https://github.com/nuxt/nuxt',
+    branch: 'main',
+    rootDir: 'docs',
+  },
+})
+```
+
+<ParamField path="github.url" type="string" default="">
+  GitHub repository URL
+</ParamField>
+
+<ParamField path="github.branch" type="string" default="main">
+  Git branch containing documentation
+</ParamField>
+
+<ParamField path="github.rootDir" type="string" default="">
+  Root directory within the repository
+</ParamField>
+
+<Note>
+GitHub configuration is automatically detected from your Git repository metadata when not explicitly configured.
+</Note>
+
+## Table of Contents
+
+Customize the table of contents sidebar:
+
+```typescript [app.config.ts]
+export default defineAppConfig({
+  toc: {
+    title: 'On this page',
+    bottom: {
+      title: 'Community',
+      links: [
+        {
+          icon: 'i-lucide-book-open',
+          label: 'Nuxt UI docs',
+          to: 'https://ui.nuxt.com',
+          target: '_blank',
+        },
+      ],
+    },
+  },
+})
+```
+
+<ParamField path="toc.title" type="string" default="On this page">
+  Title of the table of contents
+</ParamField>
+
+<ParamField path="toc.bottom.title" type="string" default="Community">
+  Title of the bottom section
+</ParamField>
+
+<ParamField path="toc.bottom.links" type="array" default="[]">
+  Links to display in the bottom section
+  
+  <Accordion title="Link Schema">
+    ```typescript
+    {
+      icon: string
+      label: string
+      to: string
+      target?: string
+    }
+    ```
+  </Accordion>
+</ParamField>
+
+## AI Assistant Configuration
+
+Configure the AI-powered documentation assistant:
+
+```typescript [app.config.ts]
+export default defineAppConfig({
+  assistant: {
+    floatingInput: true,
+    explainWithAi: true,
+    faqQuestions: [
+      'How do I install Docus?',
+      'How do I customize the theme?',
+    ],
+    shortcuts: {
+      focusInput: 'meta_i',
+    },
+    icons: {
+      trigger: 'i-lucide-sparkles',
+      explain: 'i-lucide-brain',
+    },
+  },
+})
+```
+
+<ParamField path="assistant.floatingInput" type="boolean" default="true">
+  Show floating input at bottom of documentation pages
+</ParamField>
+
+<ParamField path="assistant.explainWithAi" type="boolean" default="true">
+  Show "Explain with AI" button in documentation sidebar
+</ParamField>
+
+<ParamField path="assistant.faqQuestions" type="array" default="[]">
+  List of FAQ questions. Can be an array of strings or an array of categories with questions:
+  
+  ```typescript
+  faqQuestions: {
+    en: [
+      { 
+        category: 'Getting Started', 
+        items: ['How do I install?', 'What is the structure?']
+      },
+    ],
+    fr: [
+      { 
+        category: 'Démarrage', 
+        items: ['Comment installer ?']
+      },
+    ],
+  }
+  ```
+</ParamField>
+
+<ParamField path="assistant.shortcuts.focusInput" type="string" default="meta_i">
+  Keyboard shortcut to focus input (e.g., `meta_i`, `ctrl_k`)
+</ParamField>
+
+<ParamField path="assistant.icons.trigger" type="string" default="i-lucide-sparkles">
+  Icon for AI chat trigger button and slideover header
+</ParamField>
+
+<ParamField path="assistant.icons.explain" type="string" default="i-lucide-brain">
+  Icon for "Explain with AI" button
+</ParamField>
+
+## Nuxt Configuration
+
+Extend Docus with Nuxt configuration:
+
+```typescript [nuxt.config.ts]
+export default defineNuxtConfig({
+  extends: ['docus'],
+  modules: ['@nuxtjs/i18n', 'nuxt-studio'],
+  site: {
+    name: 'Docus',
+  },
+  content: {
+    build: {
+      markdown: {
+        highlight: {
+          langs: ['bash', 'typescript', 'javascript', 'vue'],
+        },
+      },
+    },
+  },
+})
+```
+
+<Steps>
+  <Step title="Extend Docus">
+    Use `extends: ['docus']` to inherit all Docus features
+  </Step>
+  
+  <Step title="Add Modules">
+    Include additional Nuxt modules like `@nuxtjs/i18n` or `nuxt-studio`
+  </Step>
+  
+  <Step title="Configure Content">
+    Customize Nuxt Content behavior including syntax highlighting and plugins
+  </Step>
+</Steps>
+
+## Environment Variables
+
+Docus respects the following environment variables:
+
+<CodeGroup>
+```bash [.env]
+AI_GATEWAY_API_KEY=your-api-key
+NUXT_PUBLIC_SITE_URL=https://docus.dev
+```
+
+```bash [Vercel]
+AI_GATEWAY_API_KEY=your-api-key
+```
+</CodeGroup>
+
+<ParamField path="AI_GATEWAY_API_KEY" type="string">
+  API key for AI Gateway to enable the assistant feature
+</ParamField>
+
+<ParamField path="NUXT_PUBLIC_SITE_URL" type="string">
+  Public site URL for absolute links and SEO
+</ParamField>
+
+## Type Safety
+
+Docus provides full TypeScript support with schema validation:
+
+```typescript [nuxt.schema.ts]
+import { field, group } from '@nuxt/content/preview'
+
+export default defineNuxtSchema({
+  appConfig: {
+    ui: group({
+      title: 'UI',
+      fields: {
+        colors: group({
+          fields: {
+            primary: field({
+              type: 'string',
+              default: 'green',
+              required: ['red', 'orange', 'green', 'blue'],
+            }),
+          },
+        }),
+      },
+    }),
+  },
+})
+```
+
+<Warning>
+The schema is primarily used by Nuxt Studio for visual configuration. Most users will configure settings directly in `app.config.ts`.
+</Warning>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Theming" icon="palette" href="/concepts/theming">
+    Customize colors and design tokens
+  </Card>
+  
+  <Card title="Customization" icon="wrench" href="/concepts/customization">
+    Extend and override components
+  </Card>
+</CardGroup>

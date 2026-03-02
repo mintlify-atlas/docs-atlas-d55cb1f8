@@ -1,0 +1,375 @@
+---
+title: Markdown Components
+description: Use MDC components to create rich, interactive documentation
+icon: puzzle-piece
+---
+
+Docus combines the power of Markdown with Vue components using **MDC (Markdown Components)** syntax. This allows you to create rich, interactive documentation without writing complex HTML.
+
+## What is MDC?
+
+MDC (Markdown Components) is a syntax extension that lets you use Vue components directly in Markdown files. It's powered by [@nuxt/content](https://content.nuxt.com/docs/files/markdown#mdc-syntax) and provides a seamless way to enhance your documentation.
+
+```mdc
+::callout
+This is a callout component using MDC syntax!
+::
+```
+
+<Note>
+While Docus uses MDC syntax natively, this Mintlify documentation uses Mintlify's component syntax shown throughout this page.
+</Note>
+
+## Callout Components
+
+Docus provides several callout components to highlight important information:
+
+### Note
+
+Use notes for additional information:
+
+```mdc
+::note
+Here's some additional information for you.
+::
+```
+
+In Mintlify:
+
+<Note>
+Here's some additional information for you.
+</Note>
+
+### Tip
+
+Use tips for helpful suggestions:
+
+```mdc
+::tip
+Here's a helpful suggestion to improve your workflow.
+::
+```
+
+In Mintlify:
+
+<Tip>
+Here's a helpful suggestion to improve your workflow.
+</Tip>
+
+### Warning
+
+Use warnings for cautionary information:
+
+```mdc
+::warning
+Be careful with this action as it might have unexpected results.
+::
+```
+
+In Mintlify:
+
+<Warning>
+Be careful with this action as it might have unexpected results.
+</Warning>
+
+### Caution
+
+Use caution for critical warnings:
+
+```mdc
+::caution
+This action cannot be undone.
+::
+```
+
+In Mintlify:
+
+<Warning>
+This action cannot be undone. Proceed with extreme caution.
+</Warning>
+
+## Accordion Components
+
+Create expandable sections to organize content and reduce visual clutter.
+
+### Single Accordion
+
+<Accordion title="What is Docus?">
+  Docus is a fully integrated documentation solution built with Nuxt UI. It's a theme based on the UI documentation template that provides a ready-to-use visual interface. Users can focus on content using Markdown and MDC syntax.
+</Accordion>
+
+```mdc
+::accordion
+  :::accordion-item{label="What is Docus?" icon="i-lucide-circle-help"}
+  Docus is a fully integrated documentation solution built with Nuxt UI.
+  :::
+::
+```
+
+### Accordion Group
+
+<AccordionGroup>
+  <Accordion title="What is Docus and what are its key features?">
+    Docus is a fully integrated documentation solution built with Nuxt UI. It's a theme based on the UI documentation template that provides a ready-to-use visual. Users can focus on content using Markdown and MDC syntax.
+  </Accordion>
+  <Accordion title="How do I get started with Docus?">
+    The only thing you need to start a Docus project is a `content/` folder. You can check the starter template for a quick start.
+  </Accordion>
+  <Accordion title="What is Nuxt UI?">
+    [Nuxt UI](https://ui.nuxt.com/) is a collection of premium Vue components, composables and utilities for building beautiful, responsive applications.
+  </Accordion>
+</AccordionGroup>
+
+```mdc
+::accordion
+  :::accordion-item{label="What is Docus?" icon="i-lucide-circle-help"}
+  Docus is a fully integrated documentation solution.
+  :::
+  
+  :::accordion-item{label="How do I get started?" icon="i-lucide-circle-help"}
+  Start with a `content/` folder.
+  :::
+::
+```
+
+## Tabs Component
+
+Display content in tabbed interfaces for better organization:
+
+<Tabs>
+  <Tab title="Preview">
+    This is the preview content. You can use **Markdown** and other components here.
+  </Tab>
+  <Tab title="Code">
+    ```typescript
+    export default defineNuxtConfig({
+      modules: ['@nuxt/ui']
+    })
+    ```
+  </Tab>
+  <Tab title="Details">
+    Additional information about this example goes here.
+  </Tab>
+</Tabs>
+
+```mdc
+::tabs
+  :::tabs-item{icon="i-lucide-eye" label="Preview"}
+  This is the preview content.
+  :::
+  
+  :::tabs-item{icon="i-lucide-code" label="Code"}
+  ```typescript
+  export default defineNuxtConfig({
+    modules: ['@nuxt/ui']
+  })
+  ```
+  :::
+::
+```
+
+## Card Components
+
+Highlight content or create visual groupings with cards.
+
+### Card Group
+
+<CardGroup cols={2}>
+  <Card title="Dashboard" icon="github" href="https://github.com/nuxt-ui-templates/dashboard">
+    A dashboard with multi-column layout and data visualization.
+  </Card>
+  <Card title="SaaS" icon="github" href="https://github.com/nuxt-ui-templates/saas">
+    A template with landing, pricing, docs and blog sections.
+  </Card>
+  <Card title="Docs" icon="github" href="https://github.com/nuxt-ui-templates/docs">
+    A documentation template with `@nuxt/content` integration.
+  </Card>
+  <Card title="Landing" icon="github" href="https://github.com/nuxt-ui-templates/landing">
+    A landing page you can use as a starting point.
+  </Card>
+</CardGroup>
+
+```mdc
+::card-group
+  :::card
+  ---
+  title: Dashboard
+  icon: i-simple-icons-github
+  to: https://github.com/nuxt-ui-templates/dashboard
+  ---
+  A dashboard with multi-column layout.
+  :::
+  
+  :::card
+  ---
+  title: SaaS
+  icon: i-simple-icons-github
+  to: https://github.com/nuxt-ui-templates/saas
+  ---
+  A template with landing, pricing, docs and blog.
+  :::
+::
+```
+
+## Steps Component
+
+Create numbered step-by-step guides:
+
+<Steps>
+  <Step title="Install Docus">
+    Create a new Docus project:
+    
+    ```bash
+    npm create nuxt@latest -- -t github:nuxt-content/docus
+    ```
+  </Step>
+  <Step title="Start Development Server">
+    Run the dev server:
+    
+    ```bash
+    npm run dev
+    ```
+  </Step>
+  <Step title="Start Writing">
+    Create your first page in the `content/` directory and start writing your documentation!
+  </Step>
+</Steps>
+
+```mdc
+::steps{level="4"}
+  #### Install Docus
+  
+  Create a new project:
+  ```bash
+  npm create nuxt@latest -- -t github:nuxt-content/docus
+  ```
+  
+  #### Start Development Server
+  
+  Run the dev server:
+  ```bash
+  npm run dev
+  ```
+::
+```
+
+## Icon Component
+
+Display icons inline using the icon component:
+
+```mdc
+:icon{name="i-simple-icons-nuxtdotjs"}
+```
+
+Docus supports all Iconify icons through the [@iconify-json](https://iconify.design/) packages.
+
+## Badge Component
+
+Add badges to highlight version numbers or status:
+
+```mdc
+::badge
+**v3.0.0**
+::
+```
+
+<Tip>
+You can customize badge colors using props: `::badge{color="green"}New::`
+</Tip>
+
+## Field Components
+
+Document API properties and parameters:
+
+```mdc
+::field-group
+  ::field{name="analytics" type="boolean"}
+  Default to `false` - Enables analytics for your project.
+  ::
+  
+  ::field{name="database" type="boolean"}
+  Default to `false` - Enables SQL database support.
+  ::
+::
+```
+
+<Note>
+Field components are particularly useful for API documentation and configuration references.
+</Note>
+
+## Collapsible Component
+
+Wrap content to make it collapsible:
+
+```mdc
+::collapsible
+
+| Prop    | Default   | Type     |
+| ------- | --------- | -------- |
+| `name`  |           | `string` |
+| `size`  | `md`      | `string` |
+| `color` | `neutral` | `string` |
+
+::
+```
+
+## Using Nuxt UI Components
+
+Docus is built on [Nuxt UI](https://ui.nuxt.com/), which means you have access to all Nuxt UI components:
+
+<Tabs>
+  <Tab title="Button">
+    ```vue
+    <UButton>Click me</UButton>
+    ```
+  </Tab>
+  <Tab title="Input">
+    ```vue
+    <UInput placeholder="Enter text..." />
+    ```
+  </Tab>
+  <Tab title="Select">
+    ```vue
+    <USelect :options="['Option 1', 'Option 2']" />
+    ```
+  </Tab>
+</Tabs>
+
+<Warning>
+While you can use any Nuxt UI component, remember that they require Vue runtime and won't work in static Markdown contexts.
+</Warning>
+
+## Component Nesting
+
+MDC supports nested components using colons to indicate nesting levels:
+
+```mdc
+::parent-component
+  :::child-component
+    ::::grandchild-component
+    Inner content
+    ::::
+  :::
+::
+```
+
+<Tip>
+Each additional colon indicates one level deeper in the component hierarchy.
+</Tip>
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Use semantic components">
+    Choose the right component for your content. Use `::tip` for helpful suggestions, `::warning` for cautions, etc.
+  </Accordion>
+  <Accordion title="Keep nesting shallow">
+    Avoid deeply nested components (more than 3 levels) as they become hard to read and maintain.
+  </Accordion>
+  <Accordion title="Combine with Markdown">
+    MDC components work seamlessly with regular Markdown. You can use **bold**, *italic*, and other formatting inside components.
+  </Accordion>
+  <Accordion title="Test interactive components">
+    Always test components like tabs and accordions to ensure they work correctly in your documentation.
+  </Accordion>
+</AccordionGroup>

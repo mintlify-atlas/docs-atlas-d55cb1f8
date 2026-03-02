@@ -1,0 +1,375 @@
+---
+title: Composables
+description: Vue composables for common functionality in Docus
+icon: i-lucide-code
+---
+
+Docus provides Vue composables for common documentation functionality. These composables are auto-imported and available in all components.
+
+## useSeo
+
+Comprehensive SEO setup including meta tags, canonical URLs, hreflang tags, and JSON-LD structured data.
+
+**Location:** `app/composables/useSeo.ts`
+
+### Usage
+
+<CodeGroup>
+```vue
+<script setup lang="ts">
+const { data: page } = await useAsyncData('page', () => 
+  queryContent('/docs/introduction').findOne()
+)
+
+useSeo({
+  title: page.value.title,
+  description: page.value.description,
+  type: 'article',
+  publishedAt: page.value.publishedAt,
+  modifiedAt: page.value.modifiedAt,
+  breadcrumbs: [
+    { title: 'Home', path: '/' },
+    { title: 'Docs', path: '/docs' },
+    { title: page.value.title, path: page.value._path }
+  ]
+})
+</script>
+```
+</CodeGroup>
+
+### Options
+
+<ParamField path="title" type="string | Ref<string>" required>
+  Page title for meta tags and Open Graph.
+</ParamField>
+
+<ParamField path="description" type="string | Ref<string>" required>
+  Page description for meta tags and Open Graph.
+</ParamField>
+
+<ParamField path="type" type="'website' | 'article'" default="article">
+  Page type for `og:type` meta tag.
+  
+  - `article` - For documentation pages (includes Article schema)
+  - `website` - For landing pages (includes WebSite schema)
+</ParamField>
+
+<ParamField path="ogImage" type="string | Ref<string>">
+  Custom Open Graph image URL (absolute URL).
+</ParamField>
+
+<ParamField path="publishedAt" type="string | Ref<string>">
+  Published date in ISO 8601 format for Article schema.
+</ParamField>
+
+<ParamField path="modifiedAt" type="string | Ref<string>">
+  Last modified date in ISO 8601 format for Article schema.
+</ParamField>
+
+<ParamField path="breadcrumbs" type="BreadcrumbItem[] | Ref<BreadcrumbItem[]>">
+  Breadcrumb items for BreadcrumbList JSON-LD schema.
+  
+  Each item should have:
+  - `title` (string) - Breadcrumb label
+  - `path` (string) - Breadcrumb URL path
+</ParamField>
+
+### Features
+
+**Meta Tags:**
+- Title and description
+- Open Graph tags (`og:title`, `og:description`, `og:type`, `og:url`, `og:locale`)
+- Twitter Card tags
+- Canonical URL
+
+**Internationalization:**
+- Automatic hreflang tags for all locales
+- `x-default` hreflang pointing to default locale
+- `og:locale` set to current locale
+
+**Structured Data (JSON-LD):**
+- Article schema for documentation pages
+- WebSite schema for landing pages
+- BreadcrumbList schema for navigation
+- Publisher information from site config
+
+### Example with Full Options
+
+<CodeGroup>
+```vue
+<script setup lang="ts">
+useSeo({
+  title: 'Introduction to Docus',
+  description: 'Learn how to build beautiful documentation with Docus',
+  type: 'article',
+  ogImage: 'https://docus.dev/og-images/introduction.png',
+  publishedAt: '2024-01-15T10:00:00Z',
+  modifiedAt: '2024-03-20T15:30:00Z',
+  breadcrumbs: [
+    { title: 'Home', path: '/' },
+    { title: 'Documentation', path: '/docs' },
+    { title: 'Getting Started', path: '/docs/getting-started' },
+    { title: 'Introduction', path: '/docs/getting-started/introduction' }
+  ]
+})
+</script>
+```
+</CodeGroup>
+
+## useLogoAssets
+
+Manage logo assets with copy, download, and context menu functionality.
+
+**Location:** `app/composables/useLogoAssets.ts`
+
+### Usage
+
+<CodeGroup>
+```vue
+<script setup lang="ts">
+const {
+  hasLogo,
+  currentLogoUrl,
+  headerLightUrl,
+  headerDarkUrl,
+  logoAlt,
+  contextMenuItems,
+  copyLogo,
+  downloadLogo
+} = useLogoAssets()
+</script>
+
+<template>
+  <img 
+    v-if="hasLogo" 
+    :src="currentLogoUrl" 
+    :alt="logoAlt" 
+  />
+  <button @click="copyLogo">Copy Logo</button>
+  <button @click="downloadLogo">Download Logo</button>
+</template>
+```
+</CodeGroup>
+
+### Returned Properties
+
+<ResponseField name="hasLogo" type="Ref<boolean>">
+  Whether a logo is configured in app.config.
+</ResponseField>
+
+<ResponseField name="displayMode" type="Ref<'logo' | 'wordmark'>">
+  Current display mode for the header.
+</ResponseField>
+
+<ResponseField name="currentLogoUrl" type="Ref<string>">
+  Current logo URL based on color mode.
+</ResponseField>
+
+<ResponseField name="headerLightUrl" type="Ref<string>">
+  Logo URL for light mode header.
+</ResponseField>
+
+<ResponseField name="headerDarkUrl" type="Ref<string>">
+  Logo URL for dark mode header.
+</ResponseField>
+
+<ResponseField name="hasWordmark" type="Ref<boolean>">
+  Whether a wordmark is configured.
+</ResponseField>
+
+<ResponseField name="currentWordmarkUrl" type="Ref<string>">
+  Current wordmark URL based on color mode.
+</ResponseField>
+
+<ResponseField name="faviconUrl" type="Ref<string>">
+  Favicon URL from configuration.
+</ResponseField>
+
+<ResponseField name="logoAlt" type="Ref<string>">
+  Alt text for the logo.
+</ResponseField>
+
+<ResponseField name="contextMenuItems" type="Ref<ContextMenuItem[][]>">
+  Context menu items for the logo (copy, download, brand assets).
+</ResponseField>
+
+### Methods
+
+<ResponseField name="copyLogo" type="() => Promise<void>">
+  Copy logo SVG to clipboard (only works for SVG logos).
+  
+  Shows success/error toast notification.
+</ResponseField>
+
+<ResponseField name="downloadLogo" type="() => Promise<void>">
+  Download logo file.
+  
+  Shows success toast notification.
+</ResponseField>
+
+<ResponseField name="copyWordmark" type="() => Promise<void>">
+  Copy wordmark SVG to clipboard (only works for SVG wordmarks).
+</ResponseField>
+
+<ResponseField name="downloadWordmark" type="() => Promise<void>">
+  Download wordmark file.
+</ResponseField>
+
+<ResponseField name="copyTextToClipboard" type="(text: string) => Promise<boolean>">
+  Utility function to copy text to clipboard.
+</ResponseField>
+
+<ResponseField name="fetchSvgContent" type="(url: string, name: string) => Promise<string | null>">
+  Fetch and normalize SVG content from a URL.
+</ResponseField>
+
+### Features
+
+**Automatic SVG Normalization:**
+- Replaces hard-coded colors with `currentColor`
+- Adds `id` and `title` elements for accessibility
+- Optimizes SVG for embedding
+
+**Context Menu Integration:**
+- Copy logo (SVG only)
+- Copy wordmark (SVG only)
+- Download logo
+- Download wordmark
+- Link to brand assets page
+
+**Toast Notifications:**
+- Success/error feedback for copy operations
+- Download confirmations
+
+## useDocusI18n
+
+Unified internationalization interface that works with or without the `@nuxtjs/i18n` module.
+
+**Location:** `app/composables/useDocusI18n.ts`
+
+### Usage
+
+<CodeGroup>
+```vue
+<script setup lang="ts">
+const { 
+  isEnabled, 
+  locale, 
+  locales, 
+  t, 
+  localePath, 
+  switchLocalePath 
+} = useDocusI18n()
+</script>
+
+<template>
+  <div>
+    <p>Current locale: {{ locale }}</p>
+    <p>{{ t('welcome.message') }}</p>
+    
+    <NuxtLink 
+      v-for="loc in locales" 
+      :key="loc.code"
+      :to="switchLocalePath(loc.code)"
+    >
+      {{ loc.name }}
+    </NuxtLink>
+  </div>
+</template>
+```
+</CodeGroup>
+
+### Returned Properties
+
+<ResponseField name="isEnabled" type="Ref<boolean>">
+  Whether i18n is enabled in the project.
+</ResponseField>
+
+<ResponseField name="locale" type="Ref<string>">
+  Current locale code (e.g., `'en'`, `'fr'`).
+</ResponseField>
+
+<ResponseField name="locales" type="LocaleObject[]">
+  Array of configured locales with `code` and `name` properties.
+  
+  Returns empty array if i18n is not enabled.
+</ResponseField>
+
+<ResponseField name="t" type="(key: string) => string">
+  Translation function.
+  
+  When i18n is disabled, uses fallback locale messages from Docus.
+</ResponseField>
+
+<ResponseField name="localePath" type="(path: string) => string">
+  Generate localized path for a given route.
+  
+  When i18n is disabled, returns the path unchanged.
+</ResponseField>
+
+<ResponseField name="switchLocalePath" type="(locale: string) => string">
+  Get the path for switching to a different locale.
+  
+  When i18n is disabled, returns undefined.
+</ResponseField>
+
+### Features
+
+**Graceful Fallback:**
+- Works without `@nuxtjs/i18n` module
+- Provides consistent API regardless of i18n configuration
+- Built-in translations for UI elements
+
+**Type Safety:**
+- Full TypeScript support
+- Compatible with `@nuxtjs/i18n` types
+
+### Translation Keys
+
+Built-in translation keys available:
+
+<CodeGroup>
+```typescript
+// Logo actions
+t('logo.copyLogo')
+t('logo.copyWordmark')
+t('logo.downloadLogo')
+t('logo.downloadWordmark')
+t('logo.brandAssets')
+t('logo.logoCopied')
+t('logo.wordmarkCopied')
+t('logo.copyLogoFailed')
+t('logo.copyWordmarkFailed')
+t('logo.logoDownloaded')
+t('logo.wordmarkDownloaded')
+```
+</CodeGroup>
+
+## Type Definitions
+
+### UseSeoOptions
+
+<CodeGroup>
+```typescript
+interface UseSeoOptions {
+  title: MaybeRefOrGetter<string | undefined>
+  description: MaybeRefOrGetter<string | undefined>
+  type?: MaybeRefOrGetter<'website' | 'article'>
+  ogImage?: MaybeRefOrGetter<string | undefined>
+  publishedAt?: MaybeRefOrGetter<string | undefined>
+  modifiedAt?: MaybeRefOrGetter<string | undefined>
+  breadcrumbs?: MaybeRefOrGetter<BreadcrumbItem[] | undefined>
+}
+```
+</CodeGroup>
+
+### BreadcrumbItem
+
+<CodeGroup>
+```typescript
+interface BreadcrumbItem {
+  title: string
+  path: string
+}
+```
+</CodeGroup>

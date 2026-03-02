@@ -1,0 +1,252 @@
+---
+title: Code Blocks
+description: Display inline code and code blocks in your documentation
+icon: code
+---
+
+Docus provides powerful code display features with syntax highlighting, filenames, and advanced grouping capabilities.
+
+## Basic Code Blocks
+
+### Inline Code
+
+Use inline code to display code snippets within text paragraphs. Wrap code in single backticks:
+
+```markdown
+`inline code`
+```
+
+Result: `inline code`
+
+### Multi-line Code Blocks
+
+Use code blocks to display multi-line code snippets with syntax highlighting. Wrap code in triple backticks with a language identifier:
+
+````markdown
+```typescript
+export default defineNuxtConfig({
+  modules: ['@nuxt/ui']
+})
+```
+````
+
+Result:
+
+```typescript
+export default defineNuxtConfig({
+  modules: ['@nuxt/ui']
+})
+```
+
+### Code Blocks with Filenames
+
+Specify a filename to display on top of the code block. An icon will be automatically shown based on the file extension:
+
+````markdown
+```typescript nuxt.config.ts
+export default defineNuxtConfig({
+  modules: ['@nuxt/ui']
+})
+```
+````
+
+Result:
+
+```typescript nuxt.config.ts
+export default defineNuxtConfig({
+  modules: ['@nuxt/ui']
+})
+```
+
+<Note>
+Every code block has a built-in copy button that copies the code to your clipboard.
+</Note>
+
+## Supported Languages
+
+Docus supports syntax highlighting for dozens of programming languages:
+
+<Tabs>
+  <Tab title="JavaScript/TypeScript">
+    ```javascript
+    const greeting = 'Hello, Docus!';
+    console.log(greeting);
+    ```
+
+    ```typescript
+    interface User {
+      name: string;
+      email: string;
+    }
+
+    const user: User = {
+      name: 'John Doe',
+      email: 'john@example.com'
+    };
+    ```
+  </Tab>
+  <Tab title="Vue">
+    ```vue
+    <template>
+      <UApp>
+        <NuxtPage />
+      </UApp>
+    </template>
+
+    <script setup>
+    const title = 'Welcome to Docus';
+    </script>
+    ```
+  </Tab>
+  <Tab title="Shell/Bash">
+    ```bash
+    pnpm add @nuxt/ui
+    npm install @nuxt/ui
+    yarn add @nuxt/ui
+    ```
+  </Tab>
+  <Tab title="CSS/SCSS">
+    ```css
+    @import "tailwindcss";
+    @import "@nuxt/ui";
+
+    @theme {
+      --font-sans: 'Public Sans', sans-serif;
+      --color-green-500: #00C16A;
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Advanced Features
+
+### Code Groups
+
+Use `<CodeGroup>` to display multiple related code examples in tabs. Perfect for showing code examples in multiple languages or package managers:
+
+<CodeGroup>
+```bash npm
+npm install @nuxt/ui
+```
+
+```bash pnpm
+pnpm add @nuxt/ui
+```
+
+```bash yarn
+yarn add @nuxt/ui
+```
+
+```bash bun
+bun add @nuxt/ui
+```
+</CodeGroup>
+
+Here's the syntax:
+
+````markdown
+<CodeGroup>
+```bash npm
+npm install @nuxt/ui
+```
+
+```bash pnpm
+pnpm add @nuxt/ui
+```
+
+```bash yarn
+yarn add @nuxt/ui
+```
+</CodeGroup>
+````
+
+### Line Highlighting
+
+Highlight specific lines in your code blocks to draw attention to important parts:
+
+```typescript {2,4-6}
+export default defineNuxtConfig({
+  modules: ['@nuxt/ui'],
+  ui: {
+    colors: {
+      primary: 'sky',
+      neutral: 'slate'
+    }
+  }
+})
+```
+
+Use curly braces with line numbers:
+
+````markdown
+```typescript {2,4-6}
+export default defineNuxtConfig({
+  modules: ['@nuxt/ui'],
+  ui: {
+    colors: {
+      primary: 'sky',
+      neutral: 'slate'
+    }
+  }
+})
+```
+````
+
+### Line Numbers
+
+Enable line numbers for longer code blocks:
+
+```typescript showLineNumbers
+export default defineAppConfig({
+  ui: {
+    colors: {
+      primary: 'sky',
+      neutral: 'slate'
+    }
+  }
+})
+```
+
+## MDC Code Components
+
+Docus uses MDC (Markdown Components) for advanced code display features.
+
+### Code Preview
+
+In the original Docus framework, you can show code output alongside the code using the `::code-preview` component:
+
+```mdc
+::code-preview
+`inline code`
+
+#code
+```mdc
+`inline code`
+```
+::
+```
+
+### Code Collapse
+
+For long code blocks, you can use collapsible accordions to keep pages clean and improve readability. Simply wrap your code blocks in an `Accordion` component.
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Always specify the language">
+    This enables proper syntax highlighting and helps readers understand the code context.
+  </Accordion>
+  <Accordion title="Use filenames for clarity">
+    Include filenames in code blocks to show where code should be placed in a project.
+  </Accordion>
+  <Accordion title="Keep examples concise">
+    Show only the relevant parts of the code. Use comments like `// ...` to indicate omitted code.
+  </Accordion>
+  <Accordion title="Use CodeGroup for alternatives">
+    When showing multiple ways to do something (like different package managers), use CodeGroup.
+  </Accordion>
+</AccordionGroup>
+
+<Tip>
+For very long code examples, consider using an accordion or linking to a GitHub repository instead of embedding all the code inline.
+</Tip>

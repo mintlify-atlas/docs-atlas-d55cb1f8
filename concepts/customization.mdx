@@ -1,0 +1,432 @@
+---
+title: Customization
+description: Extend and customize Docus by overriding components, creating custom layouts, and adding your own functionality.
+---
+
+Docus is built on Nuxt, which means you can leverage Nuxt's powerful extensibility features to customize every aspect of your documentation site.
+
+## Overriding Components
+
+Replace any built-in Docus component by creating a file with the same name in your `components/` directory.
+
+### Component Structure
+
+Docus includes several key components you can override:
+
+<CodeGroup>
+```bash [App Components]
+components/
+├── app/
+│   ├── AppHeader.vue
+│   ├── AppHeaderLogo.vue
+│   ├── AppHeaderBody.vue
+│   ├── AppHeaderCenter.vue
+│   ├── AppHeaderCTA.vue
+│   ├── AppFooter.vue
+│   ├── AppFooterLeft.vue
+│   └── AppFooterRight.vue
+```
+
+```bash [Docs Components]
+components/
+├── docs/
+│   ├── DocsAsideLeftTop.vue
+│   ├── DocsAsideLeftBody.vue
+│   ├── DocsAsideRightBottom.vue
+│   └── DocsPageHeaderLinks.vue
+```
+</CodeGroup>
+
+### Example: Custom Header
+
+Create a custom header by overriding `AppHeader.vue`:
+
+```vue [components/app/AppHeader.vue]
+<template>
+  <UHeader>
+    <template #logo>
+      <AppHeaderLogo />
+    </template>
+    
+    <template #center>
+      <AppHeaderCenter />
+    </template>
+    
+    <template #right>
+      <UButton to="/docs" color="primary">
+        Get Started
+      </UButton>
+      <AppHeaderCTA />
+    </template>
+  </UHeader>
+</template>
+```
+
+<Steps>
+  <Step title="Create Component">
+    Create a new component in `components/app/AppHeader.vue`
+  </Step>
+  
+  <Step title="Copy Base Structure">
+    Copy the base structure from the original component or create your own
+  </Step>
+  
+  <Step title="Customize">
+    Add your custom functionality, styling, or layout
+  </Step>
+  
+  <Step title="Auto-Import">
+    Nuxt automatically imports your component, overriding the default
+  </Step>
+</Steps>
+
+## Custom Layouts
+
+Create custom layouts for different page types:
+
+```vue [layouts/custom.vue]
+<template>
+  <div>
+    <AppHeader />
+    <main>
+      <slot />
+    </main>
+    <AppFooter />
+  </div>
+</template>
+```
+
+Use the layout in a page:
+
+```md [content/docs/special-page.md]
+---
+title: Special Page
+layout: custom
+---
+
+This page uses a custom layout.
+```
+
+<Info>
+Layouts give you full control over page structure while reusing components like `AppHeader` and `AppFooter`.
+</Info>
+
+## Custom Pages
+
+Add custom pages by creating Vue components in the `pages/` directory:
+
+```vue [pages/changelog.vue]
+<script setup lang="ts">
+const { data: releases } = await useFetch('/api/releases')
+</script>
+
+<template>
+  <UContainer>
+    <PageHero title="Changelog" description="Latest updates and releases" />
+    
+    <div v-for="release in releases" :key="release.id">
+      <h2>{{ release.name }}</h2>
+      <p>{{ release.body }}</p>
+    </div>
+  </UContainer>
+</template>
+```
+
+## Extending Templates
+
+Docus provides template pages that you can extend:
+
+### Landing Page Template
+
+The default landing page template is used when you don't have an `index.vue`:
+
+```vue [pages/index.vue]
+<script setup lang="ts">
+const { data: page } = await useAsyncData('index', () => {
+  return queryCollection('landing').path('/').first()
+})
+
+if (!page.value) {
+  throw createError({ statusCode: 404 })
+}
+
+useSeoMeta({
+  title: page.value.title,
+  description: page.value.description,
+})
+</script>
+
+<template>
+  <div>
+    <PageHero v-bind="page" />
+    <ContentRenderer :value="page" />
+  </div>
+</template>
+```
+
+## Composables
+
+Docus provides several composables you can use in your custom components:
+
+### useDocusI18n
+
+```vue
+<script setup lang="ts">
+const { isEnabled, locale, locales, t, localePath } = useDocusI18n()
+</script>
+
+<template>
+  <div>
+    <p v-if="isEnabled">Current locale: {{ locale }}</p>
+    <p>{{ t('docs.edit') }}</p>
+  </div>
+</template>
+```
+
+<ParamField path="isEnabled" type="Ref<boolean>">
+  Whether i18n is enabled
+</ParamField>
+
+<ParamField path="locale" type="Ref<string>">
+  Current locale code
+</ParamField>
+
+<ParamField path="locales" type="LocaleObject[]">
+  Available locales
+</ParamField>
+
+<ParamField path="t" type="(key: string) => string">
+  Translation function
+</ParamField>
+
+<ParamField path="localePath" type="(path: string) => string">
+  Get localized path
+</ParamField>
+
+### useSeo
+
+```vue
+<script setup lang="ts">
+useSeo({
+  title: 'Custom Page',
+  description: 'A custom page with SEO',
+})
+</script>
+```
+
+### useLogoAssets
+
+```vue
+<script setup lang="ts">
+const { 
+  logo, 
+  wordmark, 
+  favicon,
+  copyLogo,
+  downloadLogo,
+} = useLogoAssets()
+</script>
+
+<template>
+  <img :src="logo" alt="Logo" />
+  <button @click="copyLogo">Copy Logo</button>
+</template>
+```
+
+## Custom Modules
+
+Create Nuxt modules to add functionality to Docus:
+
+```typescript [modules/analytics.ts]
+import { defineNuxtModule, addPlugin, createResolver } from '@nuxt/kit'
+
+export default defineNuxtModule({
+  meta: {
+    name: 'analytics',
+  },
+  setup(options, nuxt) {
+    const { resolve } = createResolver(import.meta.url)
+    
+    // Add plugin
+    addPlugin(resolve('./runtime/plugin'))
+    
+    // Extend config
+    nuxt.options.runtimeConfig.public.analytics = {
+      enabled: true,
+    }
+  },
+})
+```
+
+Register the module:
+
+```typescript [nuxt.config.ts]
+export default defineNuxtConfig({
+  modules: ['./modules/analytics'],
+})
+```
+
+<Warning>
+When creating custom modules, ensure they don't conflict with Docus's internal modules: `config`, `routing`, `markdown-rewrite`, and `css`.
+</Warning>
+
+## Plugins
+
+Add functionality with Nuxt plugins:
+
+```typescript [plugins/analytics.client.ts]
+export default defineNuxtPlugin((nuxtApp) => {
+  const config = useRuntimeConfig()
+  
+  if (config.public.analytics.enabled) {
+    // Initialize analytics
+    nuxtApp.hook('page:finish', () => {
+      // Track page view
+    })
+  }
+})
+```
+
+<Tabs>
+  <Tab title="Client-side">
+    Use `.client.ts` suffix for plugins that only run in the browser:
+    
+    ```typescript
+    // plugins/analytics.client.ts
+    ```
+  </Tab>
+  
+  <Tab title="Server-side">
+    Use `.server.ts` suffix for server-only plugins:
+    
+    ```typescript
+    // plugins/cache.server.ts
+    ```
+  </Tab>
+  
+  <Tab title="Universal">
+    No suffix runs on both client and server:
+    
+    ```typescript
+    // plugins/logger.ts
+    ```
+  </Tab>
+</Tabs>
+
+## API Routes
+
+Add custom API endpoints:
+
+```typescript [server/api/search.ts]
+export default defineEventHandler(async (event) => {
+  const query = getQuery(event)
+  
+  const results = await queryCollection('docs')
+    .where('title', 'contains', query.q)
+    .all()
+  
+  return {
+    results,
+  }
+})
+```
+
+<Steps>
+  <Step title="Create Handler">
+    Create a file in `server/api/` directory
+  </Step>
+  
+  <Step title="Define Logic">
+    Implement your API logic using Nuxt Content or other data sources
+  </Step>
+  
+  <Step title="Use in Frontend">
+    Call the API from your components:
+    
+    ```vue
+    const { data } = await useFetch('/api/search', {
+      query: { q: 'installation' },
+    })
+    ```
+  </Step>
+</Steps>
+
+## Middleware
+
+Add route middleware for authentication or redirects:
+
+```typescript [middleware/auth.ts]
+export default defineNuxtRouteMiddleware((to) => {
+  const user = useUser()
+  
+  if (!user.value && to.path.startsWith('/admin')) {
+    return navigateTo('/login')
+  }
+})
+```
+
+Apply globally or per-page:
+
+```vue [pages/admin.vue]
+<script setup lang="ts">
+definePageMeta({
+  middleware: 'auth',
+})
+</script>
+```
+
+## Nitro Configuration
+
+Customize the server with Nitro configuration:
+
+```typescript [nuxt.config.ts]
+export default defineNuxtConfig({
+  nitro: {
+    prerender: {
+      crawlLinks: true,
+      routes: ['/sitemap.xml'],
+    },
+    routeRules: {
+      '/api/**': { cors: true },
+      '/docs/**': { swr: 3600 },
+    },
+  },
+})
+```
+
+<ParamField path="nitro.prerender.crawlLinks" type="boolean" default="true">
+  Automatically discover and prerender linked pages
+</ParamField>
+
+<ParamField path="nitro.routeRules" type="object">
+  Configure caching, headers, and redirects per route pattern
+</ParamField>
+
+## Content Hooks
+
+Hook into content processing:
+
+```typescript [nuxt.config.ts]
+export default defineNuxtConfig({
+  hooks: {
+    'content:file:beforeParse': (file) => {
+      // Modify file before parsing
+      if (file._id.endsWith('.md')) {
+        // Add custom transformations
+      }
+    },
+  },
+})
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Nuxt Documentation" icon="book" href="https://nuxt.com/docs" target="_blank">
+    Learn more about Nuxt features
+  </Card>
+  
+  <Card title="Nuxt Content" icon="file-lines" href="https://content.nuxt.com" target="_blank">
+    Explore Content module capabilities
+  </Card>
+</CardGroup>

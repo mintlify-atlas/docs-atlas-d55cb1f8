@@ -1,0 +1,291 @@
+---
+title: Editing Content
+description: Learn how to create and edit documentation pages in Docus using Markdown and MDC syntax.
+---
+
+Docus provides multiple ways to create and edit your documentation, from writing Markdown files locally to using the integrated Nuxt Studio editor.
+
+## Content Structure
+
+Docs content lives in the `content/` directory. Docus uses Nuxt Content's collection system to organize pages.
+
+<CodeGroup>
+```bash [Without i18n]
+content/
+├── index.md           # Landing page
+└── docs/              # Documentation pages
+    ├── getting-started.md
+    └── guide.md
+```
+
+```bash [With i18n]
+content/
+├── en/
+│   ├── index.md      # English landing
+│   └── docs/         # English docs
+└── fr/
+    ├── index.md      # French landing
+    └── docs/         # French docs
+```
+</CodeGroup>
+
+<Info>
+The content structure automatically adapts based on whether i18n is enabled in your Nuxt config.
+</Info>
+
+## Writing with Markdown
+
+Create new pages by adding `.md` or `.mdx` files in your content directory:
+
+```md [content/docs/my-page.md]
+---
+title: My Page Title
+description: A brief description for SEO
+---
+
+# My Page Title
+
+Your content goes here...
+```
+
+### Frontmatter
+
+Every page should include frontmatter with metadata:
+
+<ParamField path="title" type="string" required>
+  Page title shown in navigation and SEO
+</ParamField>
+
+<ParamField path="description" type="string">
+  Page description for SEO and previews
+</ParamField>
+
+<ParamField path="links" type="array">
+  Custom links displayed in the page header
+  
+  <Accordion title="Link Object Schema">
+    ```typescript
+    {
+      label: string
+      icon: string
+      to: string
+      target?: string
+    }
+    ```
+  </Accordion>
+</ParamField>
+
+## MDC Syntax
+
+Docus uses MDC (Markdown Components) powered by Nuxt Content, allowing you to use Vue components directly in Markdown:
+
+```md
+::card{title="Featured Card"}
+This is a card component used inline in Markdown.
+::
+
+:badge[New Feature]
+```
+
+<Steps>
+  <Step title="Enable MDC">
+    MDC is enabled by default through the Nuxt Content configuration:
+    
+    ```typescript [nuxt.config.ts]
+    export default defineNuxtConfig({
+      content: {
+        build: {
+          markdown: {
+            remarkPlugins: {
+              'remark-mdc': {
+                options: {
+                  autoUnwrap: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+    ```
+  </Step>
+  
+  <Step title="Use Components">
+    Reference any component from your `components/` directory or Nuxt UI:
+    
+    ```md
+    ::alert{type="warning"}
+    This is a warning message
+    ::
+    ```
+  </Step>
+  
+  <Step title="Add Props">
+    Pass props using the curly brace syntax:
+    
+    ```md
+    ::button{to="/docs" color="primary" size="lg"}
+    Get Started
+    ::
+    ```
+  </Step>
+</Steps>
+
+## Editing with Nuxt Studio
+
+Nuxt Studio provides a visual editor for your Docus documentation with live preview and collaborative features.
+
+### Setup Studio
+
+Configure Nuxt Studio in your `nuxt.config.ts`:
+
+```typescript [nuxt.config.ts]
+export default defineNuxtConfig({
+  modules: ['nuxt-studio'],
+  studio: {
+    route: '/admin',
+    repository: {
+      provider: 'github',
+      owner: 'your-org',
+      repo: 'your-repo',
+      rootDir: 'docs',
+    },
+  },
+})
+```
+
+<ParamField path="studio.route" type="string" default="/admin">
+  URL path where Studio admin interface is accessible
+</ParamField>
+
+<ParamField path="studio.repository.provider" type="string" required>
+  Git provider: `github`, `gitlab`, or `bitbucket`
+</ParamField>
+
+<ParamField path="studio.repository.rootDir" type="string">
+  Root directory containing your content files
+</ParamField>
+
+### Studio Features
+
+<CardGroup cols={2}>
+  <Card title="Visual Editor" icon="pen-to-square">
+    Edit Markdown with a rich WYSIWYG interface
+  </Card>
+  
+  <Card title="Live Preview" icon="eye">
+    See changes instantly with hot reload
+  </Card>
+  
+  <Card title="Schema Validation" icon="shield-check">
+    Validate frontmatter using Nuxt Schema
+  </Card>
+  
+  <Card title="Media Library" icon="images">
+    Upload and manage images and assets
+  </Card>
+</CardGroup>
+
+## GitHub Integration
+
+Enable "Edit this page" links by configuring GitHub settings:
+
+```typescript [app.config.ts]
+export default defineAppConfig({
+  github: {
+    url: 'https://github.com/your-org/your-repo',
+    branch: 'main',
+    rootDir: 'docs',
+  },
+})
+```
+
+<ParamField path="github.url" type="string">
+  Full GitHub repository URL
+</ParamField>
+
+<ParamField path="github.branch" type="string" default="main">
+  Branch where content files are stored
+</ParamField>
+
+<ParamField path="github.rootDir" type="string">
+  Root directory path within the repository
+</ParamField>
+
+<Note>
+The GitHub configuration is automatically inferred from your Git repository if not explicitly set.
+</Note>
+
+## AI-Powered Editing
+
+Docus includes an AI assistant to help with documentation:
+
+```typescript [app.config.ts]
+export default defineAppConfig({
+  assistant: {
+    explainWithAi: true,
+    floatingInput: true,
+    shortcuts: {
+      focusInput: 'meta_i',
+    },
+  },
+})
+```
+
+<Tabs>
+  <Tab title="Explain with AI">
+    Click the "Explain with AI" button to get contextual explanations of documentation sections.
+  </Tab>
+  
+  <Tab title="Floating Input">
+    Use the floating input (⌘+I) to ask questions while reading documentation.
+  </Tab>
+  
+  <Tab title="Smart Search">
+    The AI assistant searches through your docs to provide accurate answers with source citations.
+  </Tab>
+</Tabs>
+
+## Content Collections
+
+Docus automatically configures content collections based on your setup:
+
+```typescript [content.config.ts]
+import { defineContentConfig, defineCollection, z } from '@nuxt/content'
+
+export default defineContentConfig({
+  collections: {
+    docs: defineCollection({
+      type: 'page',
+      source: {
+        include: 'docs/**',
+        prefix: '/docs',
+      },
+      schema: z.object({
+        links: z.array(z.object({
+          label: z.string(),
+          icon: z.string(),
+          to: z.string(),
+          target: z.string().optional(),
+        })).optional(),
+      }),
+    }),
+  },
+})
+```
+
+<Warning>
+When using i18n, collections are automatically created for each locale with the pattern `docs_{locale_code}`.
+</Warning>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Markdown Syntax" icon="markdown" href="/essentials/markdown-syntax">
+    Learn advanced Markdown features
+  </Card>
+  
+  <Card title="Components" icon="puzzle-piece" href="/essentials/components">
+    Use built-in components in your docs
+  </Card>
+</CardGroup>

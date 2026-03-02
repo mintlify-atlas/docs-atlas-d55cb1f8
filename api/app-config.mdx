@@ -1,0 +1,411 @@
+---
+title: App Config
+description: Configure your Docus site with app.config.ts
+icon: i-lucide-settings
+---
+
+The `app.config.ts` file is used to configure your Docus site appearance, behavior, and integrations. All options are reactive and can be updated at runtime.
+
+## Configuration Schema
+
+Docus uses a structured configuration schema defined in `nuxt.schema.ts`. Below are all available configuration options.
+
+## UI Customization
+
+### Colors
+
+Customize the color scheme of your documentation site.
+
+<ParamField path="ui.colors.primary" type="string" default="green">
+  Primary color of your UI. Choose from Tailwind CSS color names.
+  
+  **Options:** `red`, `orange`, `amber`, `yellow`, `lime`, `green`, `emerald`, `teal`, `cyan`, `sky`, `blue`, `indigo`, `violet`, `purple`, `fuchsia`, `pink`, `rose`
+</ParamField>
+
+<ParamField path="ui.colors.neutral" type="string" default="slate">
+  Neutral color of your UI for backgrounds and borders.
+  
+  **Options:** `slate`, `gray`, `zinc`, `neutral`, `stone`
+</ParamField>
+
+<CodeGroup>
+```ts app.config.ts
+export default defineAppConfig({
+  ui: {
+    colors: {
+      primary: 'blue',
+      neutral: 'slate'
+    }
+  }
+})
+```
+</CodeGroup>
+
+### Icons
+
+Customize icons used throughout the documentation interface.
+
+<ParamField path="ui.icons.search" type="string" default="i-lucide-search">
+  Icon to display in the search bar.
+</ParamField>
+
+<ParamField path="ui.icons.dark" type="string" default="i-lucide-moon">
+  Icon for the dark mode color mode button.
+</ParamField>
+
+<ParamField path="ui.icons.light" type="string" default="i-lucide-sun">
+  Icon for the light mode color mode button.
+</ParamField>
+
+<ParamField path="ui.icons.external" type="string" default="i-lucide-external-link">
+  Icon displayed next to external links.
+</ParamField>
+
+<ParamField path="ui.icons.chevron" type="string" default="i-lucide-chevron-down">
+  Icon used for chevrons in navigation and dropdowns.
+</ParamField>
+
+<ParamField path="ui.icons.hash" type="string" default="i-lucide-hash">
+  Icon displayed next to heading anchors.
+</ParamField>
+
+<CodeGroup>
+```ts app.config.ts
+export default defineAppConfig({
+  ui: {
+    icons: {
+      search: 'i-heroicons-magnifying-glass',
+      dark: 'i-heroicons-moon',
+      light: 'i-heroicons-sun'
+    }
+  }
+})
+```
+</CodeGroup>
+
+## SEO Configuration
+
+<ParamField path="seo.title" type="string" default="">
+  Default title for SEO meta tags. Used as fallback when page-specific title is not provided.
+</ParamField>
+
+<ParamField path="seo.description" type="string" default="">
+  Default description for SEO meta tags. Used as fallback when page-specific description is not provided.
+</ParamField>
+
+<CodeGroup>
+```ts app.config.ts
+export default defineAppConfig({
+  seo: {
+    title: 'My Documentation Site',
+    description: 'Comprehensive documentation for my project'
+  }
+})
+```
+</CodeGroup>
+
+## Header Configuration
+
+### Basic Header
+
+<ParamField path="header.title" type="string" default="">
+  Title displayed in the header. Falls back to site name if logo is not provided.
+</ParamField>
+
+### Logo Configuration
+
+<ParamField path="header.logo.light" type="string" default="">
+  Path to logo image for light mode.
+</ParamField>
+
+<ParamField path="header.logo.dark" type="string" default="">
+  Path to logo image for dark mode.
+</ParamField>
+
+<ParamField path="header.logo.alt" type="string" default="">
+  Alt text for the logo image (accessibility).
+</ParamField>
+
+<ParamField path="header.logo.class" type="string" default="">
+  Additional CSS classes to apply to the logo image.
+</ParamField>
+
+<ParamField path="header.logo.display" type="string" default="logo">
+  Which logo variant to show in the header.
+  
+  **Options:**
+  - `logo` - Display the icon logo
+  - `wordmark` - Display the full wordmark
+</ParamField>
+
+### Wordmark Configuration
+
+<ParamField path="header.logo.wordmark.light" type="string" default="">
+  Path to wordmark (text logo) image for light mode.
+</ParamField>
+
+<ParamField path="header.logo.wordmark.dark" type="string" default="">
+  Path to wordmark (text logo) image for dark mode.
+</ParamField>
+
+### Brand Assets
+
+<ParamField path="header.logo.favicon" type="string" default="/favicon.ico">
+  Path to the favicon file for brand asset downloads.
+</ParamField>
+
+<ParamField path="header.logo.brandAssetsUrl" type="string" default="">
+  Link to the full brand assets page. Shown in the logo context menu for easy access to brand resources.
+</ParamField>
+
+<CodeGroup>
+```ts app.config.ts
+export default defineAppConfig({
+  header: {
+    title: 'Docus',
+    logo: {
+      light: '/logo/logo-dark.svg',
+      dark: '/logo/logo-light.svg',
+      alt: 'Docus Logo',
+      wordmark: {
+        light: '/logo/wordmark-dark.svg',
+        dark: '/logo/wordmark-light.svg'
+      },
+      favicon: '/favicon.svg',
+      display: 'wordmark',
+      brandAssetsUrl: '/brand-assets'
+    }
+  }
+})
+```
+</CodeGroup>
+
+## Social Links
+
+<ParamField path="socials" type="object" default="{}">
+  Social network links displayed in the footer or header. Add any social platform as a key-value pair.
+  
+  Common platforms: `twitter`, `x`, `github`, `discord`, `linkedin`, `youtube`
+</ParamField>
+
+<CodeGroup>
+```ts app.config.ts
+export default defineAppConfig({
+  socials: {
+    x: 'https://x.com/nuxt_js',
+    discord: 'https://discord.com/invite/ps2h6QT',
+    github: 'https://github.com/nuxt/docus'
+  }
+})
+```
+</CodeGroup>
+
+## Table of Contents
+
+### Main TOC
+
+<ParamField path="toc.title" type="string" default="On this page">
+  Title of the table of contents sidebar.
+</ParamField>
+
+### Bottom Links
+
+<ParamField path="toc.bottom.title" type="string" default="Community">
+  Title of the bottom section in the table of contents.
+</ParamField>
+
+<ParamField path="toc.bottom.links" type="array" default="[]">
+  Links to display in the bottom section of the TOC. Each link should have `icon`, `label`, `to`, and optionally `target` properties.
+</ParamField>
+
+<CodeGroup>
+```ts app.config.ts
+export default defineAppConfig({
+  toc: {
+    title: 'On this page',
+    bottom: {
+      title: 'Community',
+      links: [
+        {
+          icon: 'i-lucide-book-open',
+          label: 'Nuxt UI docs',
+          to: 'https://ui.nuxt.com',
+          target: '_blank'
+        }
+      ]
+    }
+  }
+})
+```
+</CodeGroup>
+
+## GitHub Integration
+
+<ParamField path="github.url" type="string" default="">
+  GitHub repository URL. Enables "Edit this page" links and GitHub icon in header.
+</ParamField>
+
+<ParamField path="github.branch" type="string" default="main">
+  GitHub branch name for edit links.
+</ParamField>
+
+<ParamField path="github.rootDir" type="string" default="">
+  Root directory of documentation content in the repository. Used to construct correct edit URLs.
+</ParamField>
+
+<CodeGroup>
+```ts app.config.ts
+export default defineAppConfig({
+  github: {
+    url: 'https://github.com/nuxt/docus',
+    branch: 'main',
+    rootDir: 'docs'
+  }
+})
+```
+</CodeGroup>
+
+## AI Assistant
+
+Configure the AI-powered documentation assistant.
+
+### Display Options
+
+<ParamField path="assistant.floatingInput" type="boolean" default="true">
+  Show the floating AI input at the bottom of documentation pages.
+</ParamField>
+
+<ParamField path="assistant.explainWithAi" type="boolean" default="true">
+  Show the "Explain with AI" button in the documentation sidebar.
+</ParamField>
+
+### FAQ Questions
+
+<ParamField path="assistant.faqQuestions" type="array" default="[]">
+  List of FAQ questions for the AI assistant. Can be an array of strings or an array of category objects with questions.
+  
+  Supports internationalization by using an object with locale keys.
+</ParamField>
+
+### Keyboard Shortcuts
+
+<ParamField path="assistant.shortcuts.focusInput" type="string" default="meta_i">
+  Keyboard shortcut to focus the floating AI input.
+  
+  Format: `meta_i`, `ctrl_k`, etc.
+</ParamField>
+
+### Assistant Icons
+
+<ParamField path="assistant.icons.trigger" type="string" default="i-lucide-sparkles">
+  Icon for the AI chat trigger button and slideover header.
+</ParamField>
+
+<ParamField path="assistant.icons.explain" type="string" default="i-lucide-brain">
+  Icon for the "Explain with AI" button.
+</ParamField>
+
+<CodeGroup>
+```ts app.config.ts
+export default defineAppConfig({
+  assistant: {
+    floatingInput: true,
+    explainWithAi: true,
+    faqQuestions: {
+      en: [
+        { category: 'Getting Started', items: [
+          'How do I install Docus?',
+          'What is the project structure?'
+        ]},
+        { category: 'Customization', items: [
+          'How do I customize the theme?',
+          'How do I add custom components?'
+        ]}
+      ],
+      fr: [
+        { category: 'Démarrage', items: [
+          'Comment installer Docus ?',
+          'Quelle est la structure du projet ?'
+        ]}
+      ]
+    },
+    shortcuts: {
+      focusInput: 'meta_i'
+    },
+    icons: {
+      trigger: 'i-lucide-sparkles',
+      explain: 'i-lucide-brain'
+    }
+  }
+})
+```
+</CodeGroup>
+
+## Complete Example
+
+<CodeGroup>
+```ts app.config.ts
+export default defineAppConfig({
+  ui: {
+    colors: {
+      primary: 'green',
+      neutral: 'slate'
+    },
+    icons: {
+      search: 'i-lucide-search',
+      dark: 'i-lucide-moon',
+      light: 'i-lucide-sun'
+    }
+  },
+  seo: {
+    title: 'My Documentation',
+    description: 'Complete guide for my project'
+  },
+  header: {
+    title: 'Docus',
+    logo: {
+      light: '/logo/logo-dark.svg',
+      dark: '/logo/logo-light.svg',
+      alt: 'Docus Logo',
+      wordmark: {
+        light: '/logo/wordmark-dark.svg',
+        dark: '/logo/wordmark-light.svg'
+      },
+      favicon: '/favicon.svg'
+    }
+  },
+  socials: {
+    x: 'https://x.com/nuxt_js',
+    discord: 'https://discord.com/invite/ps2h6QT',
+    github: 'https://github.com/nuxt/docus'
+  },
+  toc: {
+    title: 'On this page',
+    bottom: {
+      title: 'Community',
+      links: [
+        {
+          icon: 'i-lucide-book-open',
+          label: 'Nuxt UI docs',
+          to: 'https://ui.nuxt.com',
+          target: '_blank'
+        }
+      ]
+    }
+  },
+  github: {
+    url: 'https://github.com/nuxt/docus',
+    branch: 'main',
+    rootDir: 'docs'
+  },
+  assistant: {
+    floatingInput: true,
+    explainWithAi: true,
+    faqQuestions: [
+      'How do I install Docus?',
+      'How do I customize the theme?'
+    ]
+  }
+})
+```
+</CodeGroup>

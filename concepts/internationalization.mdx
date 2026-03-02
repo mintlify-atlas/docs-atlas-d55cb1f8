@@ -1,0 +1,412 @@
+---
+title: Internationalization
+description: Add multi-language support to your documentation with i18n, locale routing, and translation management.
+---
+
+Docus provides built-in internationalization (i18n) support using `@nuxtjs/i18n`, allowing you to create documentation in multiple languages with automatic routing and locale detection.
+
+## Setup
+
+Enable i18n by installing the module and configuring locales:
+
+<Steps>
+  <Step title="Install Module">
+    Add `@nuxtjs/i18n` to your project:
+    
+    ```bash
+    npm install @nuxtjs/i18n
+    ```
+  </Step>
+  
+  <Step title="Configure Locales">
+    Add i18n configuration to `nuxt.config.ts`:
+    
+    ```typescript [nuxt.config.ts]
+    export default defineNuxtConfig({
+      extends: ['docus'],
+      modules: ['@nuxtjs/i18n'],
+      i18n: {
+        defaultLocale: 'en',
+        locales: [
+          {
+            code: 'en',
+            name: 'English',
+          },
+          {
+            code: 'fr',
+            name: 'Français',
+          },
+        ],
+      },
+    })
+    ```
+  </Step>
+  
+  <Step title="Create Content Folders">
+    Organize content by locale:
+    
+    ```bash
+    content/
+    ├── en/
+    │   ├── index.md
+    │   └── docs/
+    │       └── getting-started.md
+    └── fr/
+        ├── index.md
+        └── docs/
+            └── demarrage.md
+    ```
+  </Step>
+</Steps>
+
+<Info>
+Docus automatically filters locales to only include those with both a locale file and content folder, logging warnings for missing resources.
+</Info>
+
+## Configuration
+
+### Locale Options
+
+<ParamField path="i18n.defaultLocale" type="string" required>
+  Default locale code (e.g., `en`, `fr`)
+</ParamField>
+
+<ParamField path="i18n.locales" type="array" required>
+  Array of locale objects or locale code strings
+  
+  ```typescript
+  locales: [
+    {
+      code: 'en',
+      name: 'English',
+    },
+    {
+      code: 'fr',
+      name: 'Français',
+    },
+  ]
+  ```
+</ParamField>
+
+<Warning>
+Docus overrides the i18n strategy to `prefix`, meaning all routes will be prefixed with the locale code (e.g., `/en/docs`, `/fr/docs`).
+</Warning>
+
+## Content Structure
+
+When i18n is enabled, Docus automatically configures content collections for each locale:
+
+<CodeGroup>
+```typescript [Single Locale]
+// Without i18n
+collections: {
+  docs: defineCollection({
+    source: 'docs/**',
+    prefix: '/docs',
+  }),
+}
+```
+
+```typescript [Multi-locale]
+// With i18n
+collections: {
+  docs_en: defineCollection({
+    source: 'en/docs/**',
+    prefix: '/en/docs',
+  }),
+  docs_fr: defineCollection({
+    source: 'fr/docs/**',
+    prefix: '/fr/docs',
+  }),
+}
+```
+</CodeGroup>
+
+### Locale Files
+
+Docus includes pre-built translation files for 40+ languages:
+
+```bash
+layer/i18n/locales/
+├── en.json
+├── fr.json
+├── es.json
+├── de.json
+├── ja.json
+├── zh-CN.json
+└── ...
+```
+
+<Accordion title="Available Locales">
+  Arabic (ar), Belarusian (be), Bulgarian (bg), Bengali (bn), Catalan (ca), Central Kurdish (ckb), Czech (cs), Danish (da), German (de), Greek (el), English (en), Spanish (es), Estonian (et), Finnish (fi), French (fr), Hebrew (he), Hindi (hi), Armenian (hy), Indonesian (id), Italian (it), Japanese (ja), Kazakh (kk), Khmer (km), Korean (ko), Kyrgyz (ky), Luxembourgish (lb), Malay (ms), Norwegian (nb), Dutch (nl), Polish (pl), Portuguese Brazil (pt-BR), Romanian (ro), Russian (ru), Sinhala (si), Slovenian (sl), Swedish (sv), Turkish (tr), Ukrainian (uk), Urdu (ur), Vietnamese (vi), Chinese Simplified (zh-CN)
+</Accordion>
+
+### Translation Schema
+
+Each locale file contains UI translations:
+
+```json [layer/i18n/locales/en.json]
+{
+  "common": {
+    "or": "or",
+    "error": {
+      "title": "Page not found",
+      "description": "We are sorry but this page could not be found."
+    }
+  },
+  "docs": {
+    "copy": {
+      "page": "Copy page",
+      "link": "Copy Markdown page"
+    },
+    "toc": "On this page",
+    "report": "Report an issue",
+    "edit": "Edit this page"
+  },
+  "logo": {
+    "copyLogo": "Copy logo",
+    "downloadLogo": "Download logo",
+    "brandAssets": "Brand assets"
+  },
+  "assistant": {
+    "title": "Ask AI",
+    "placeholder": "Ask a question...",
+    "explainWithAi": "Explain with AI"
+  }
+}
+```
+
+## Routing
+
+Docus uses prefix-based routing with automatic locale detection:
+
+### Route Structure
+
+<Tabs>
+  <Tab title="English">
+    ```
+    /en                  → English homepage
+    /en/docs/setup       → English docs
+    ```
+  </Tab>
+  
+  <Tab title="French">
+    ```
+    /fr                  → French homepage
+    /fr/docs/config      → French docs
+    ```
+  </Tab>
+  
+  <Tab title="Root Redirect">
+    ```
+    /                    → Redirects to default locale
+    ```
+    
+    The root path automatically redirects to the default locale or user's preferred locale from cookies.
+  </Tab>
+</Tabs>
+
+### Locale Detection
+
+Docus uses cookie-based locale detection:
+
+```typescript [layer/app/plugins/i18n.ts]
+// Automatic redirect from / to /{locale}
+addRouteMiddleware((to) => {
+  if (to.path === '/') {
+    const cookieLocale = useCookie('i18n_redirected').value || 'en'
+    return navigateTo(`/${cookieLocale}`)
+  }
+})
+```
+
+## Using Translations
+
+Access translations in your components using the `useDocusI18n` composable:
+
+```vue
+<script setup lang="ts">
+const { t, locale, locales, localePath } = useDocusI18n()
+</script>
+
+<template>
+  <div>
+    <p>{{ t('docs.edit') }}</p>
+    <p>Current: {{ locale }}</p>
+    
+    <NuxtLink :to="localePath('/docs')">Docs</NuxtLink>
+  </div>
+</template>
+```
+
+### Composable API
+
+<ParamField path="t" type="(key: string) => string">
+  Translation function that retrieves localized strings:
+  
+  ```vue
+  {{ t('docs.toc') }}  // "On this page"
+  {{ t('assistant.title') }}  // "Ask AI"
+  ```
+</ParamField>
+
+<ParamField path="locale" type="Ref<string>">
+  Current active locale code
+</ParamField>
+
+<ParamField path="locales" type="LocaleObject[]">
+  Array of available locale objects with `code` and `name`
+</ParamField>
+
+<ParamField path="localePath" type="(path: string) => string">
+  Generate localized path for a given route:
+  
+  ```vue
+  localePath('/docs')  // "/en/docs" or "/fr/docs"
+  ```
+</ParamField>
+
+<ParamField path="switchLocalePath" type="(locale: string) => string">
+  Get path for switching to a different locale
+</ParamField>
+
+## Language Switcher
+
+Docus includes a built-in language selector component:
+
+```vue [components/LanguageSelect.vue]
+<template>
+  <USelectMenu
+    v-model="locale"
+    :items="locales"
+    value-attribute="code"
+    text-attribute="name"
+    @update:model-value="onLocaleChange"
+  >
+    <template #label>
+      {{ currentLocale?.name }}
+    </template>
+  </USelectMenu>
+</template>
+```
+
+The component automatically appears in the header when multiple locales are configured.
+
+## Per-Locale Configuration
+
+Customize settings for each locale:
+
+```typescript [app.config.ts]
+export default defineAppConfig({
+  assistant: {
+    faqQuestions: {
+      en: [
+        { 
+          category: 'Getting Started', 
+          items: [
+            'How do I install Docus?',
+            'What is the project structure?',
+          ],
+        },
+      ],
+      fr: [
+        { 
+          category: 'Démarrage', 
+          items: [
+            'Comment installer Docus ?',
+            'Quelle est la structure du projet ?',
+          ],
+        },
+      ],
+    },
+  },
+})
+```
+
+<Info>
+FAQ questions and other locale-specific content can be configured per language for a fully localized experience.
+</Info>
+
+## Without @nuxtjs/i18n
+
+You can use basic locale support without the full i18n module:
+
+```typescript [app.config.ts]
+export default defineAppConfig({
+  docus: {
+    locale: 'en',  // Set a single locale
+  },
+})
+```
+
+This loads the appropriate locale file for UI translations without route prefixing or locale switching.
+
+```typescript [layer/app/plugins/i18n.ts]
+// Falls back to configured locale if i18n is disabled
+const appConfig = useAppConfig()
+const configuredLocale = appConfig.docus.locale || 'en'
+```
+
+## SEO & Alternates
+
+Docus automatically generates locale alternates for SEO when i18n is enabled:
+
+```typescript [nuxt.config.ts]
+export default defineNuxtConfig({
+  i18n: {
+    defaultLocale: 'en',
+    locales: [
+      { code: 'en', name: 'English' },
+      { code: 'fr', name: 'Français' },
+    ],
+  },
+})
+```
+
+This generates proper `<link rel="alternate">` tags for search engines.
+
+## Prerendering
+
+Docus automatically prerenders routes for all configured locales:
+
+```typescript [layer/nuxt.config.ts]
+hooks: {
+  'nitro:config'(nitroConfig) {
+    const routes = i18nOptions.locales?.map(
+      locale => `/${locale.code}`
+    ) || ['/']
+    
+    nitroConfig.prerender.routes.push(...routes)
+  },
+}
+```
+
+<Steps>
+  <Step title="Configure Locales">
+    Set up locales in `nuxt.config.ts`
+  </Step>
+  
+  <Step title="Add Content">
+    Create content folders for each locale
+  </Step>
+  
+  <Step title="Build">
+    Run `npm run generate` to prerender all locale routes
+  </Step>
+  
+  <Step title="Deploy">
+    Deploy the static site with all localized pages
+  </Step>
+</Steps>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="@nuxtjs/i18n Docs" icon="language" href="https://i18n.nuxtjs.org" target="_blank">
+    Full i18n module documentation
+  </Card>
+  
+  <Card title="Nuxt Content" icon="file-lines" href="https://content.nuxt.com" target="_blank">
+    Learn about content collections
+  </Card>
+</CardGroup>

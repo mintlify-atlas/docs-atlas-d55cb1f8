@@ -1,0 +1,414 @@
+---
+title: Project Structure
+description: Learn about the Docus project structure and how files are organized.
+---
+
+# Project Structure
+
+Understand how Docus organizes your documentation project and what each directory contains.
+
+## Overview
+
+Docus is a **Nuxt layer** that extends your standard Nuxt application with documentation features. This layer-based approach gives you the flexibility of a full Nuxt project while keeping your documentation as the primary focus.
+
+## Minimal Structure
+
+When you create a new Docus project with `npx create-docus my-docs`, you get a minimal, clean structure:
+
+```bash
+my-docs/
+├── content/             # Your markdown content
+│   ├── index.md         # Homepage
+│   └── docs/            # Documentation pages
+├── public/              # Static assets
+└── package.json         # Dependencies and scripts
+```
+
+<Info>
+  This minimal structure is all you need to start writing documentation. The Docus layer provides all the theming, routing, and UI components.
+</Info>
+
+## Full Nuxt Project Structure
+
+Since Docus is a Nuxt layer, you can extend it with any feature from a standard Nuxt project:
+
+```bash
+my-docs/
+├── app/                 # App directory (optional)
+│   ├── components/      # Custom Vue components
+│   ├── layouts/         # Custom layouts
+│   ├── pages/           # Custom Vue pages
+│   ├── composables/     # Vue composables
+│   └── middleware/      # Route middleware
+├── content/             # Your markdown content
+│   ├── index.md         # Homepage
+│   └── docs/            # Documentation pages
+├── public/              # Static assets
+├── server/              # Server-side code
+│   └── api/             # API routes
+├── plugins/             # Nuxt plugins
+├── modules/             # Custom Nuxt modules
+├── app.config.ts        # App configuration
+├── nuxt.config.ts       # Nuxt configuration
+└── package.json         # Dependencies and scripts
+```
+
+<Warning>
+  You need a `nuxt.config.ts` file to use optional Nuxt directories like `app/`, `server/`, etc. Without it, changes to these directories won't be applied.
+</Warning>
+
+## Core Directories
+
+### `content/` Directory
+
+This is where you write your documentation in Markdown. Docus automatically generates routes based on your file structure.
+
+#### Single Language Structure
+
+For single-language documentation, organize files directly in the content directory:
+
+```bash
+content/
+├── index.md
+├── getting-started.md
+└── guide/
+    ├── introduction.md
+    └── configuration.md
+```
+
+**Resulting routes:**
+- `/` → `index.md`
+- `/getting-started` → `getting-started.md`
+- `/guide/introduction` → `guide/introduction.md`
+- `/guide/configuration` → `guide/configuration.md`
+
+#### Multi-language Structure (i18n)
+
+For multi-language documentation, organize content by locale:
+
+```bash
+content/
+├── en/
+│   ├── index.md
+│   ├── getting-started.md
+│   └── guide/
+│       └── introduction.md
+└── fr/
+    ├── index.md
+    ├── getting-started.md
+    └── guide/
+        └── introduction.md
+```
+
+**Resulting routes:**
+- `/en` → `en/index.md`
+- `/en/getting-started` → `en/getting-started.md`
+- `/fr` → `fr/index.md`
+- `/fr/getting-started` → `fr/getting-started.md`
+
+<Tip>
+  The Docus layer automatically detects i18n configuration and adjusts routing accordingly. No manual route configuration needed!
+</Tip>
+
+#### Markdown Frontmatter
+
+Each Markdown file can include frontmatter for metadata:
+
+```markdown
+---
+title: Getting Started
+description: Learn how to get started with Docus
+navigation:
+  icon: i-lucide-rocket
+seo:
+  title: Getting Started with Docus
+  description: Complete guide to getting started
+---
+
+# Your content here
+```
+
+### `public/` Directory
+
+Files in the `public/` directory are served at the root path and are not modified by the build process:
+
+```bash
+public/
+├── favicon.ico
+├── logo.png
+└── images/
+    └── hero.jpg
+```
+
+**Access in content:**
+```markdown
+![Hero Image](/images/hero.jpg)
+```
+
+<Note>
+  Files in `public/` are served as-is. For optimized images, consider using Nuxt Image's `<NuxtImg>` component.
+</Note>
+
+## Configuration Files
+
+### `package.json`
+
+The minimal Docus `package.json` includes only essential dependencies and scripts:
+
+```json package.json
+{
+  "name": "my-docs",
+  "scripts": {
+    "dev": "nuxt dev --extends docus",
+    "build": "nuxt build --extends docus"
+  },
+  "dependencies": {
+    "docus": "latest",
+    "better-sqlite3": "^12.6.2",
+    "nuxt": "^4.3.1"
+  }
+}
+```
+
+**Key points:**
+- `docus` provides the documentation layer
+- `better-sqlite3` is required by Nuxt Content for native SQLite connector
+- `nuxt` is the core framework
+- Scripts use `--extends docus` flag to apply the layer
+
+### `nuxt.config.ts` (Optional)
+
+<Info>
+  This file is **not mandatory** to start a Docus application. Only create it if you need to customize the configuration.
+</Info>
+
+Use `nuxt.config.ts` to extend Docus with additional modules or configuration:
+
+```typescript nuxt.config.ts
+export default defineNuxtConfig({
+  extends: ['docus'],
+  
+  // Add extra modules
+  modules: [
+    '@nuxtjs/plausible',
+    '@nuxtjs/google-fonts'
+  ],
+  
+  // Override Nuxt configuration
+  devtools: { enabled: true },
+  
+  // Add i18n support
+  i18n: {
+    defaultLocale: 'en',
+    locales: [
+      { code: 'en', name: 'English' },
+      { code: 'fr', name: 'Français' }
+    ]
+  }
+})
+```
+
+### `app.config.ts` (Optional)
+
+<Info>
+  This file is **not mandatory** and requires `nuxt.config.ts` to be present.
+</Info>
+
+Use `app.config.ts` to customize Docus branding, SEO, and UI settings:
+
+```typescript app.config.ts
+export default defineAppConfig({
+  // SEO configuration
+  seo: {
+    title: 'My Documentation',
+    description: 'Comprehensive documentation for my project'
+  },
+  
+  // Header configuration
+  header: {
+    title: 'My Docs',
+    logo: {
+      light: '/logo-light.png',
+      dark: '/logo-dark.png',
+      alt: 'My Docs Logo'
+    }
+  },
+  
+  // UI customization
+  ui: {
+    colors: {
+      primary: 'blue',
+      neutral: 'slate'
+    }
+  },
+  
+  // Social links
+  socials: {
+    github: 'username/repo',
+    twitter: '@username'
+  },
+  
+  // GitHub integration
+  github: {
+    url: 'https://github.com/username/repo',
+    branch: 'main',
+    rootDir: 'docs'
+  }
+})
+```
+
+<Tip>
+  The app.config.ts is reactive and can be updated at runtime without rebuilding your application.
+</Tip>
+
+## Optional Directories
+
+### `app/components/`
+
+Create custom Vue components to use in your Markdown:
+
+```bash
+app/
+└── components/
+    ├── CustomCallout.vue
+    └── PricingTable.vue
+```
+
+**Usage in Markdown:**
+```markdown
+::custom-callout
+This is a custom component!
+::
+
+::pricing-table
+::
+```
+
+### `app/layouts/`
+
+Override default layouts or create custom ones:
+
+```bash
+app/
+└── layouts/
+    ├── docs.vue      # Override default docs layout
+    └── landing.vue   # Custom landing page layout
+```
+
+### `app/pages/`
+
+Create custom Vue pages outside of the content system:
+
+```bash
+app/
+└── pages/
+    ├── pricing.vue
+    └── contact.vue
+```
+
+### `server/api/`
+
+Add server API routes for dynamic functionality:
+
+```bash
+server/
+└── api/
+    ├── newsletter.post.ts
+    └── search.get.ts
+```
+
+## File Naming Conventions
+
+### Numbered Prefixes
+
+Use numbered prefixes to control ordering in the sidebar navigation:
+
+```bash
+content/
+├── 1.getting-started/
+│   ├── 1.introduction.md
+│   ├── 2.installation.md
+│   └── 3.configuration.md
+├── 2.guide/
+│   ├── 1.basics.md
+│   └── 2.advanced.md
+└── 3.api/
+    └── reference.md
+```
+
+<Note>
+  The numbers are stripped from the URL. `1.introduction.md` becomes `/getting-started/introduction`
+</Note>
+
+### Index Files
+
+Use `index.md` for directory landing pages:
+
+```bash
+content/
+└── guide/
+    ├── index.md         # /guide (landing page)
+    ├── basics.md        # /guide/basics
+    └── advanced.md      # /guide/advanced
+```
+
+## Dependencies
+
+Docus relies on these core packages:
+
+- **`docus`** - The documentation layer (version 5.7.0)
+- **`nuxt`** - Core framework (version 4.x)
+- **`@nuxt/content`** - Content management system
+- **`@nuxt/ui`** - UI component library
+- **`@nuxt/image`** - Image optimization
+- **`better-sqlite3`** - SQLite database for content indexing
+- **`tailwindcss`** - CSS framework (version 4.x)
+
+### Optional Dependencies
+
+- **`@nuxtjs/i18n`** - Internationalization support
+- **`@nuxtjs/mcp-toolkit`** - Model Context Protocol integration
+- **`nuxt-llms`** - LLM integration features
+- **`nuxt-og-image`** - Open Graph image generation
+
+## Layer System
+
+The `extends: ['docus']` configuration means your project inherits:
+
+- Pre-configured Nuxt modules
+- Documentation theme and layouts
+- UI components from Nuxt UI
+- Routing logic for content
+- Search functionality
+- Navigation generation
+- SEO optimizations
+
+<CardGroup cols={2}>
+  <Card title="Extends Feature" icon="layers">
+    The Nuxt `extends` feature allows you to layer multiple configurations, letting you override or extend the base Docus theme.
+  </Card>
+  
+  <Card title="Full Nuxt Power" icon="zap">
+    You have access to the entire Nuxt ecosystem. Add any Nuxt module or feature to your Docus project.
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Studio Module"
+    icon="mouse-pointer-2"
+    href="/studio"
+  >
+    Learn how to edit your documentation visually in production
+  </Card>
+  
+  <Card
+    title="Migration Guide"
+    icon="replace"
+    href="/migration"
+  >
+    Migrate from Docus v3 or other documentation frameworks
+  </Card>
+</CardGroup>

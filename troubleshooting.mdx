@@ -1,0 +1,683 @@
+---
+title: Troubleshooting
+description: Common issues and their solutions when working with Docus.
+---
+
+# Troubleshooting
+
+Find solutions to common issues when working with Docus.
+
+## Installation Issues
+
+### `better-sqlite3` Build Errors
+
+<Accordion>
+  <AccordionItem title="Problem" icon="alert-circle">
+    Build or development errors related to `better-sqlite3` dependency, especially common when using `pnpm`:
+    
+    ```bash
+    Error: Cannot find module 'better-sqlite3'
+    ```
+    
+    or
+    
+    ```bash
+    node-gyp rebuild failed
+    ```
+  </AccordionItem>
+  
+  <AccordionItem title="Solution" icon="check-circle">
+    **For pnpm users:**
+    
+    1. Approve the package for building:
+    
+    ```bash
+    pnpm approve-builds
+    ```
+    
+    When prompted, select `better-sqlite3` from the list.
+    
+    2. If the issue persists, rebuild the package:
+    
+    ```bash
+    pnpm rebuild better-sqlite3
+    ```
+    
+    **For all package managers:**
+    
+    Ensure you have the necessary build tools:
+    
+    <CodeGroup>
+    ```bash macOS
+    xcode-select --install
+    ```
+    
+    ```bash Windows
+    npm install --global windows-build-tools
+    ```
+    
+    ```bash Linux (Debian/Ubuntu)
+    sudo apt-get install build-essential python3
+    ```
+    
+    ```bash Linux (Fedora/RHEL)
+    sudo dnf install gcc-c++ make python3
+    ```
+    </CodeGroup>
+  </AccordionItem>
+</Accordion>
+
+### Dependency Resolution Errors
+
+<Accordion>
+  <AccordionItem title="Problem" icon="alert-circle">
+    Errors like "Can't resolve 'tailwindcss'" or "Can't resolve '@nuxt/ui'" when you haven't imported them:
+    
+    ```bash
+    Module not found: Can't resolve 'tailwindcss'
+    ```
+  </AccordionItem>
+  
+  <AccordionItem title="Solution" icon="check-circle">
+    **For pnpm users**, enable shameful hoisting to use a flat `node_modules` structure (like npm or yarn):
+    
+    Create or update `.npmrc` file in your project root:
+    
+    ```bash .npmrc
+    shamefully-hoist=true
+    ```
+    
+    Then reinstall dependencies:
+    
+    ```bash
+    pnpm install
+    ```
+    
+    <Note>
+      This creates a flatter dependency structure that's more compatible with certain Nuxt modules.
+    </Note>
+  </AccordionItem>
+</Accordion>
+
+### Node Version Compatibility
+
+<Accordion>
+  <AccordionItem title="Problem" icon="alert-circle">
+    Build failures or runtime errors due to incompatible Node.js version:
+    
+    ```bash
+    Error: The module was compiled against a different Node.js version
+    ```
+  </AccordionItem>
+  
+  <AccordionItem title="Solution" icon="check-circle">
+    Docus requires **Node.js 18.x or higher**. Check your version:
+    
+    ```bash
+    node --version
+    ```
+    
+    If you need to upgrade:
+    
+    <CodeGroup>
+    ```bash nvm (recommended)
+    nvm install 20
+    nvm use 20
+    ```
+    
+    ```bash Download
+    # Visit https://nodejs.org and download the latest LTS version
+    ```
+    </CodeGroup>
+    
+    After upgrading, reinstall dependencies:
+    
+    ```bash
+    npm install
+    ```
+  </AccordionItem>
+</Accordion>
+
+## Development Issues
+
+### Port Already in Use
+
+<Accordion>
+  <AccordionItem title="Problem" icon="alert-circle">
+    Development server fails to start because port 3000 is already in use:
+    
+    ```bash
+    Error: listen EADDRINUSE: address already in use :::3000
+    ```
+  </AccordionItem>
+  
+  <AccordionItem title="Solution" icon="check-circle">
+    **Option 1:** Kill the process using port 3000:
+    
+    <CodeGroup>
+    ```bash macOS/Linux
+    lsof -ti:3000 | xargs kill -9
+    ```
+    
+    ```bash Windows (PowerShell)
+    Get-Process -Id (Get-NetTCPConnection -LocalPort 3000).OwningProcess | Stop-Process
+    ```
+    </CodeGroup>
+    
+    **Option 2:** Use a different port:
+    
+    ```bash
+    PORT=3001 npm run dev
+    ```
+    
+    Or add to your `nuxt.config.ts`:
+    
+    ```typescript nuxt.config.ts
+    export default defineNuxtConfig({
+      extends: ['docus'],
+      devServer: {
+        port: 3001
+      }
+    })
+    ```
+  </AccordionItem>
+</Accordion>
+
+### Hot Module Replacement (HMR) Not Working
+
+<Accordion>
+  <AccordionItem title="Problem" icon="alert-circle">
+    Changes to content or components don't reflect in the browser without manual refresh.
+  </AccordionItem>
+  
+  <AccordionItem title="Solution" icon="check-circle">
+    1. Check that you're editing files in the correct location (inside the project directory)
+    
+    2. Clear the Nuxt cache:
+    
+    ```bash
+    rm -rf .nuxt node_modules/.cache
+    npm run dev
+    ```
+    
+    3. If using Docker or VM, you may need to enable polling:
+    
+    ```typescript nuxt.config.ts
+    export default defineNuxtConfig({
+      extends: ['docus'],
+      vite: {
+        server: {
+          watch: {
+            usePolling: true
+          }
+        }
+      }
+    })
+    ```
+  </AccordionItem>
+</Accordion>
+
+### Content Not Displaying
+
+<Accordion>
+  <AccordionItem title="Problem" icon="alert-circle">
+    Markdown files exist but pages show 404 or no content displays.
+  </AccordionItem>
+  
+  <AccordionItem title="Solution" icon="check-circle">
+    **Check file location:**
+    - Files must be in the `content/` directory
+    - For i18n, files should be in `content/{locale}/`
+    
+    **Check file extension:**
+    - Use `.md` or `.mdx` extensions
+    
+    **Check frontmatter:**
+    Ensure valid YAML frontmatter:
+    
+    ```markdown
+    ---
+    title: My Page
+    ---
+    
+    # Content here
+    ```
+    
+    **Restart dev server:**
+    Sometimes Nuxt Content needs a restart to detect new files:
+    
+    ```bash
+    # Stop the server (Ctrl+C)
+    npm run dev
+    ```
+  </AccordionItem>
+</Accordion>
+
+## Component Issues
+
+### Custom Components Not Rendering
+
+<Accordion>
+  <AccordionItem title="Problem" icon="alert-circle">
+    Custom Vue components don't render in Markdown files.
+  </AccordionItem>
+  
+  <AccordionItem title="Solution" icon="check-circle">
+    **Check component location:**
+    Components must be in `app/components/` directory:
+    
+    ```bash
+    app/
+    └── components/
+        └── MyComponent.vue
+    ```
+    
+    **Check component name:**
+    Use kebab-case in Markdown:
+    
+    ```markdown
+    ::my-component
+    Content here
+    ::
+    ```
+    
+    **Ensure nuxt.config.ts exists:**
+    You need a `nuxt.config.ts` file for custom directories:
+    
+    ```typescript nuxt.config.ts
+    export default defineNuxtConfig({
+      extends: ['docus']
+    })
+    ```
+    
+    **Check component syntax:**
+    Ensure your component is properly set up:
+    
+    ```vue MyComponent.vue
+    <template>
+      <div>
+        <slot />
+      </div>
+    </template>
+    
+    <script setup>
+    // Component logic
+    </script>
+    ```
+  </AccordionItem>
+</Accordion>
+
+### MDC Syntax Errors
+
+<Accordion>
+  <AccordionItem title="Problem" icon="alert-circle">
+    MDC components display as plain text or cause parsing errors.
+  </AccordionItem>
+  
+  <AccordionItem title="Solution" icon="check-circle">
+    **Check syntax:**
+    MDC uses double colons for block components:
+    
+    ```markdown
+    ::card
+    Content here
+    ::
+    ```
+    
+    **Check nesting:**
+    Increase colons for nested components:
+    
+    ```markdown
+    ::card-group
+      :::card
+      Content
+      :::
+    ::
+    ```
+    
+    **Check props:**
+    Props use curly braces:
+    
+    ```markdown
+    ::card{title="Hello" icon="i-lucide-star"}
+    ::
+    ```
+    
+    **Check inline components:**
+    Inline components use single colon:
+    
+    ```markdown
+    :icon{name="i-lucide-rocket"}
+    ```
+  </AccordionItem>
+</Accordion>
+
+## Build Issues
+
+### Build Fails in Production
+
+<Accordion>
+  <AccordionItem title="Problem" icon="alert-circle">
+    Build works locally but fails in CI/CD or production:
+    
+    ```bash
+    Build failed with exit code 1
+    ```
+  </AccordionItem>
+  
+  <AccordionItem title="Solution" icon="check-circle">
+    **Check Node version:**
+    Ensure CI/CD uses Node.js 18+ :
+    
+    ```yaml .github/workflows/deploy.yml
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+    ```
+    
+    **Check memory limits:**
+    Increase Node memory for large sites:
+    
+    ```json package.json
+    {
+      "scripts": {
+        "build": "NODE_OPTIONS='--max-old-space-size=4096' nuxt build --extends docus"
+      }
+    }
+    ```
+    
+    **Check environment variables:**
+    Ensure all required env variables are set in production.
+    
+    **Clear build cache:**
+    
+    ```bash
+    rm -rf .nuxt .output node_modules/.cache
+    npm install
+    npm run build
+    ```
+  </AccordionItem>
+</Accordion>
+
+### Static Generation Errors
+
+<Accordion>
+  <AccordionItem title="Problem" icon="alert-circle">
+    Errors during static site generation (SSG):
+    
+    ```bash
+    Error rendering route: /path/to/page
+    ```
+  </AccordionItem>
+  
+  <AccordionItem title="Solution" icon="check-circle">
+    **Check for client-only code:**
+    Wrap browser-specific code:
+    
+    ```vue
+    <script setup>
+    onMounted(() => {
+      // Client-only code here
+    })
+    </script>
+    ```
+    
+    Or use ClientOnly component:
+    
+    ```vue
+    <template>
+      <ClientOnly>
+        <BrowserOnlyComponent />
+      </ClientOnly>
+    </template>
+    ```
+    
+    **Check for missing content:**
+    Ensure all linked pages exist.
+    
+    **Configure prerendering:**
+    
+    ```typescript nuxt.config.ts
+    export default defineNuxtConfig({
+      extends: ['docus'],
+      nitro: {
+        prerender: {
+          failOnError: false
+        }
+      }
+    })
+    ```
+  </AccordionItem>
+</Accordion>
+
+## Search Issues
+
+### Search Not Working
+
+<Accordion>
+  <AccordionItem title="Problem" icon="alert-circle">
+    Search returns no results or search modal doesn't open.
+  </AccordionItem>
+  
+  <AccordionItem title="Solution" icon="check-circle">
+    **Rebuild search index:**
+    
+    ```bash
+    rm -rf .nuxt/content-cache
+    npm run dev
+    ```
+    
+    **Check content indexing:**
+    Ensure content files have proper frontmatter with `title` and `description`:
+    
+    ```markdown
+    ---
+    title: My Page
+    description: Description for search indexing
+    ---
+    ```
+    
+    **Check for JavaScript errors:**
+    Open browser console and look for errors when opening search.
+  </AccordionItem>
+</Accordion>
+
+## Internationalization Issues
+
+### Language Switching Not Working
+
+<Accordion>
+  <AccordionItem title="Problem" icon="alert-circle">
+    Language switcher doesn't appear or doesn't work correctly.
+  </AccordionItem>
+  
+  <AccordionItem title="Solution" icon="check-circle">
+    **Check i18n configuration:**
+    
+    ```typescript nuxt.config.ts
+    export default defineNuxtConfig({
+      extends: ['docus'],
+      modules: ['@nuxtjs/i18n'],
+      i18n: {
+        defaultLocale: 'en',
+        locales: [
+          { code: 'en', name: 'English' },
+          { code: 'fr', name: 'Français' }
+        ]
+      }
+    })
+    ```
+    
+    **Check content structure:**
+    Content must be organized by locale:
+    
+    ```bash
+    content/
+    ├── en/
+    │   └── index.md
+    └── fr/
+        └── index.md
+    ```
+    
+    **Install i18n module:**
+    
+    ```bash
+    npm install @nuxtjs/i18n
+    ```
+  </AccordionItem>
+</Accordion>
+
+## Performance Issues
+
+### Slow Build Times
+
+<Accordion>
+  <AccordionItem title="Problem" icon="alert-circle">
+    Build takes too long, especially for large documentation sites.
+  </AccordionItem>
+  
+  <AccordionItem title="Solution" icon="check-circle">
+    **Increase Node memory:**
+    
+    ```json package.json
+    {
+      "scripts": {
+        "build": "NODE_OPTIONS='--max-old-space-size=8192' nuxt build --extends docus"
+      }
+    }
+    ```
+    
+    **Optimize images:**
+    Use Nuxt Image for automatic optimization:
+    
+    ```markdown
+    ::nuxt-img{src="/large-image.jpg" width="800" height="600"}
+    ::
+    ```
+    
+    **Use SQLite native connector:**
+    Already configured by default in Docus v4 for faster content queries.
+  </AccordionItem>
+</Accordion>
+
+### Slow Page Loads
+
+<Accordion>
+  <AccordionItem title="Problem" icon="alert-circle">
+    Pages take a long time to load in production.
+  </AccordionItem>
+  
+  <AccordionItem title="Solution" icon="check-circle">
+    **Enable caching:**
+    
+    ```typescript nuxt.config.ts
+    export default defineNuxtConfig({
+      extends: ['docus'],
+      routeRules: {
+        '/**': { swr: 3600 } // Cache for 1 hour
+      }
+    })
+    ```
+    
+    **Optimize images:**
+    Ensure images are properly sized and use modern formats (WebP, AVIF).
+    
+    **Check bundle size:**
+    
+    ```bash
+    npm run build -- --analyze
+    ```
+  </AccordionItem>
+</Accordion>
+
+## Getting Help
+
+Still experiencing issues? Here's how to get help:
+
+<Steps>
+  <Step title="Check the documentation">
+    Browse the [complete Docus documentation](https://docus.dev) for detailed guides.
+  </Step>
+  
+  <Step title="Search existing issues">
+    Check [GitHub Issues](https://github.com/nuxt-content/docus/issues) to see if your problem has been reported.
+  </Step>
+  
+  <Step title="Ask the community">
+    Join [GitHub Discussions](https://github.com/nuxt-content/docus/discussions) or the [Nuxt Discord](https://discord.nuxt.com).
+  </Step>
+  
+  <Step title="Report a bug">
+    If you found a bug, [create a new issue](https://github.com/nuxt-content/docus/issues/new) with:
+    - Docus version
+    - Node.js version
+    - Package manager and version
+    - Steps to reproduce
+    - Expected vs actual behavior
+  </Step>
+</Steps>
+
+## Useful Commands
+
+Keep these commands handy for troubleshooting:
+
+```bash
+# Clear all caches and reinstall
+rm -rf .nuxt .output node_modules/.cache node_modules
+npm install
+
+# Check versions
+node --version
+npm --version
+npm list docus nuxt
+
+# Rebuild native dependencies
+npm rebuild better-sqlite3
+
+# Verbose build for debugging
+DEBUG=* npm run build
+
+# Production build test locally
+npm run build
+node .output/server/index.mjs
+```
+
+## Additional Resources
+
+<CardGroup cols={2}>
+  <Card
+    title="Docus Documentation"
+    icon="book"
+    href="https://docus.dev"
+    target="_blank"
+  >
+    Complete documentation for Docus
+  </Card>
+  
+  <Card
+    title="Nuxt Documentation"
+    icon="book"
+    href="https://nuxt.com/docs"
+    target="_blank"
+  >
+    Learn more about Nuxt framework
+  </Card>
+  
+  <Card
+    title="Nuxt Content Docs"
+    icon="book"
+    href="https://content.nuxt.com"
+    target="_blank"
+  >
+    Deep dive into Nuxt Content features
+  </Card>
+  
+  <Card
+    title="GitHub Repository"
+    icon="github"
+    href="https://github.com/nuxt-content/docus"
+    target="_blank"
+  >
+    View source code and report issues
+  </Card>
+</CardGroup>

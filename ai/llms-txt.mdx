@@ -1,0 +1,377 @@
+---
+title: LLMs.txt Integration
+description: Automatically generate llms.txt files that expose your documentation to Large Language Models and AI agents using the nuxt-llms module.
+icon: message-circle-code
+---
+
+## Overview
+
+Docus automatically integrates `nuxt-llms` to prepare your documentation for Large Language Models (LLMs). This generates `/llms.txt` and `/llms-full.txt` files that provide AI-readable summaries and links to your documentation content.
+
+<Info>
+  All documentation pages are automatically indexed and included in the generated llms.txt files. No configuration required!
+</Info>
+
+## What is llms.txt?
+
+The `llms.txt` file is a standardized format for exposing documentation to LLMs. It provides:
+
+- **Site metadata** - Title, description, and domain
+- **Page index** - List of all documentation pages with titles and descriptions
+- **Direct links** - URLs to each page for the LLM to fetch and read
+
+This allows LLMs like Claude, GPT-4, and others to discover and understand your documentation structure.
+
+<Note>
+  View the live example: [docus.dev/llms.txt](https://docus.dev/llms.txt)
+</Note>
+
+## Generated Files
+
+Docus generates two files:
+
+### /llms.txt
+
+A compact version with essential information:
+
+```txt
+# My Documentation
+
+A comprehensive guide to using our framework.
+
+## Documentation
+
+- [Getting Started](https://docs.example.com/getting-started): Learn how to install
+- [Configuration](https://docs.example.com/configuration): Configure your site
+- [Components](https://docs.example.com/components): Available UI components
+```
+
+### /llms-full.txt
+
+An extended version with additional metadata and more detailed descriptions. This is useful for LLMs that can handle larger context windows.
+
+## Default Configuration
+
+Docus automatically extracts information from your `package.json` and deployment environment:
+
+| Field | Source | Example |
+|-------|--------|----------|
+| `domain` | Deployment platform or `NUXT_SITE_URL` env var | `https://docs.example.com` |
+| `title` | `package.json` name | `My Documentation` |
+| `description` | `package.json` description | `A comprehensive guide...` |
+| `full.title` | `package.json` name | `My Documentation (Full)` |
+| `full.description` | `package.json` description | `Complete documentation...` |
+
+## Custom Configuration
+
+Override default values in `nuxt.config.ts`:
+
+```typescript nuxt.config.ts
+export default defineNuxtConfig({
+  llms: {
+    domain: 'https://docs.example.com',
+    title: 'My Framework Documentation',
+    description: 'A comprehensive guide to using My Framework',
+    
+    // Extended version configuration
+    full: {
+      title: 'My Framework Complete Documentation',
+      description: 'The complete guide with examples, API reference, and best practices'
+    }
+  }
+})
+```
+
+## Raw Markdown Access
+
+When `nuxt-llms` is enabled, Docus exposes a raw markdown endpoint that provides LLM-optimized content without HTML rendering. This reduces token usage and improves response speed for AI tools.
+
+### How It Works
+
+**Endpoint pattern:** `/raw/<content-path>.md`
+
+- Use the same path as the page URL
+- Drop trailing `/index`
+- Keep the `.md` extension
+
+**Example mappings:**
+
+| Page URL | Raw Markdown URL |
+|----------|------------------|
+| `/en/getting-started` | `/raw/en/getting-started.md` |
+| `/en/ai/assistant` | `/raw/en/ai/assistant.md` |
+| `/configuration` | `/raw/configuration.md` |
+
+**Features:**
+
+- **Content-Type:** `text/markdown; charset=utf-8`
+- **Auto-enrichment:** Missing titles/descriptions are automatically prepended
+- **LLMs.txt integration:** Links in `llms.txt` point to raw markdown by default
+
+<Note>
+  Try it: Visit `/raw/en/ai/llms-txt.md` to see the raw markdown content.
+</Note>
+
+### Configuration
+
+Customize raw markdown behavior:
+
+```typescript nuxt.config.ts
+export default defineNuxtConfig({
+  llms: {
+    contentRawMarkdown: {
+      // Exclude specific collections from raw markdown exposure
+      excludeCollections: ['landing', 'landing_en', 'landing_fr'],
+      
+      // Keep llms.txt links pointing to rendered HTML pages
+      rewriteLLMSTxt: false
+    }
+  }
+})
+```
+
+### Disable Raw Markdown
+
+To disable raw markdown access entirely:
+
+```typescript nuxt.config.ts
+export default defineNuxtConfig({
+  llms: {
+    contentRawMarkdown: false
+  }
+})
+```
+
+## Markdown Redirection (Vercel)
+
+<Warning>
+  This feature is currently only available when Docus is deployed on Vercel. It will become platform-agnostic once Nitro v3 supports global rewrites for multiple vendors.
+</Warning>
+
+When deployed on Vercel, Docus automatically configures intelligent routing to serve markdown content to AI agents and CLI tools.
+
+### Why?
+
+AI agents like Claude Desktop use `Accept: text/markdown` headers by default. Serving raw markdown instead of rendered HTML saves significant data transfer and token costs.
+
+### Detection Methods
+
+Docus detects AI agents and command-line tools using HTTP headers:
+
+- **Accept header:** `Accept: text/markdown` → redirect to markdown
+- **User-agent:** `curl/.*` → redirect to markdown
+
+### Redirect Rules
+
+| Original Request | Redirects To |
+|------------------|-------------|
+| `/` | `/llms.txt` |
+| `/{locale}` | `/llms.txt` |
+| `/{path}` | `/raw/{path}.md` |
+
+### Example Usage
+
+<CodeGroup>
+```bash Homepage
+# Returns llms.txt
+curl -H "Accept: text/markdown" https://docs.example.com/
+```
+
+```bash Locale Homepage
+# Returns llms.txt
+curl -H "Accept: text/markdown" https://docs.example.com/en
+```
+
+```bash Documentation Page
+# Returns raw markdown
+curl -H "Accept: text/markdown" https://docs.example.com/en/ai/assistant
+```
+
+```bash Regular Browser
+# Returns rendered HTML (no redirect)
+curl https://docs.example.com/en/ai/assistant
+```
+</CodeGroup>
+
+### Implementation Details
+
+The markdown redirection is configured through Vercel's routing system during build time. The `markdown-rewrite` module:
+
+1. Detects Vercel deployment
+2. Reads the generated `llms.txt` file
+3. Extracts all documentation URLs
+4. Creates Vercel routing rules
+5. Writes rules to `config.json`
+
+This happens automatically during the build process - no configuration required.
+
+## Advanced Configuration
+
+### Custom Content Filtering
+
+Control which pages appear in llms.txt:
+
+```typescript nuxt.config.ts
+export default defineNuxtConfig({
+  llms: {
+    // Custom filtering function
+    filter: (page) => {
+      // Exclude draft pages
+      if (page.draft) return false
+      
+      // Exclude private sections
+      if (page.path.startsWith('/internal/')) return false
+      
+      return true
+    }
+  }
+})
+```
+
+### Custom URL Generation
+
+Customize how URLs are generated in llms.txt:
+
+```typescript nuxt.config.ts
+export default defineNuxtConfig({
+  llms: {
+    // Use custom domain for links
+    urlGenerator: (page, domain) => {
+      return `${domain}${page.path}`
+    }
+  }
+})
+```
+
+### Multiple Language Support
+
+For multi-language documentation, llms.txt automatically includes pages from all locales:
+
+```txt
+# My Documentation
+
+## English Documentation
+
+- [Getting Started](https://docs.example.com/en/getting-started)
+- [Configuration](https://docs.example.com/en/configuration)
+
+## French Documentation
+
+- [Commencer](https://docs.example.com/fr/commencer)
+- [Configuration](https://docs.example.com/fr/configuration)
+```
+
+## Integration with AI Assistant
+
+The llms.txt files work seamlessly with Docus's built-in AI assistant:
+
+1. **Initial Discovery:** When an AI tool connects to your docs, it reads `llms.txt` to understand structure
+2. **Raw Markdown Access:** The assistant fetches pages via `/raw/*.md` endpoints for efficient processing
+3. **MCP Integration:** The MCP server provides programmatic access to the same content
+
+This creates a complete AI-ready documentation ecosystem.
+
+## Testing Generated Files
+
+Verify your llms.txt files are generated correctly:
+
+<Steps>
+  <Step title="Build Your Site">
+    Run the build command to generate static files:
+    
+    ```bash
+    npm run build
+    ```
+  </Step>
+  
+  <Step title="Check Output">
+    Verify the files exist in your output directory:
+    
+    ```bash
+    ls .output/public/llms*.txt
+    ```
+  </Step>
+  
+  <Step title="View Content">
+    Check the generated content:
+    
+    ```bash
+    cat .output/public/llms.txt
+    ```
+  </Step>
+  
+  <Step title="Test in Production">
+    After deployment, visit your live URLs:
+    - `https://your-site.com/llms.txt`
+    - `https://your-site.com/llms-full.txt`
+  </Step>
+</Steps>
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Descriptive Titles" icon="heading">
+    Use clear, descriptive page titles that help LLMs understand content at a glance.
+  </Card>
+  
+  <Card title="Comprehensive Descriptions" icon="text">
+    Write detailed page descriptions in frontmatter - these appear in llms.txt and help with discovery.
+  </Card>
+  
+  <Card title="Logical Structure" icon="sitemap">
+    Organize documentation hierarchically so LLMs can navigate relationships between topics.
+  </Card>
+  
+  <Card title="Keep Content Updated" icon="refresh">
+    The llms.txt files regenerate on each build, ensuring AI tools always see current content.
+  </Card>
+</CardGroup>
+
+## Troubleshooting
+
+### llms.txt Not Generated
+
+If llms.txt isn't being generated:
+
+1. Verify `nuxt-llms` is installed (it's included by default in Docus)
+2. Check that you have content in `content/` directory
+3. Run `npm run build` to generate static files
+4. Check build output for any errors
+
+### Missing Pages
+
+If some pages aren't appearing:
+
+1. Verify pages are in a content collection (not in `public/`)
+2. Check that pages have frontmatter with `title`
+3. Ensure pages aren't excluded by custom filters
+4. Rebuild the site after adding new pages
+
+### Raw Markdown 404 Errors
+
+If raw markdown URLs return 404:
+
+1. Verify `contentRawMarkdown` isn't set to `false`
+2. Check the path matches the content structure
+3. Ensure the page exists and has been built
+4. Try accessing the rendered HTML version first
+
+## Further Reading
+
+<CardGroup cols={2}>
+  <Card title="nuxt-llms" icon="npm" href="https://github.com/nuxt-content/nuxt-llms">
+    Official nuxt-llms module documentation
+  </Card>
+  
+  <Card title="MCP Server" icon="cpu" href="/ai/mcp-server">
+    Learn about the MCP server that complements llms.txt
+  </Card>
+  
+  <Card title="AI Assistant" icon="sparkles" href="/ai/assistant">
+    See how the assistant uses llms.txt for context
+  </Card>
+  
+  <Card title="LLMs.txt Standard" icon="file" href="https://llmstxt.org/">
+    Learn about the llms.txt format specification
+  </Card>
+</CardGroup>

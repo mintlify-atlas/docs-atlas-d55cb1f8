@@ -1,0 +1,376 @@
+---
+title: Nuxt Studio
+description: Edit your Nuxt Content website directly in production with the self-hosted Studio web editor.
+---
+
+# Nuxt Studio
+
+The **Nuxt Studio** module is a browser-based interface for editing your Nuxt Content website directly in production. Access it through GitHub, GitLab or Google authentication on your deployed site, and start managing content without any local development tools.
+
+<Tip>
+  Visit the [Nuxt Studio documentation](https://nuxt.studio/introduction) to learn how to install and configure the module.
+</Tip>
+
+## What is Nuxt Studio?
+
+Nuxt Studio provides **visual editing directly in production** for Nuxt Content-powered websites. Originally offered as a standalone premium platform, Studio is now a **free, open-source, and self-hostable Nuxt module**.
+
+It enables your entire team—developers and non-technical editors alike—to create and update content safely without leaving your live website. No Git commands, no terminal access, no local development setup required.
+
+<video controls loop>
+  <source src="https://res.cloudinary.com/nuxt/video/upload/v1767647099/studio/studio-demo_eiofld.mp4" type="video/mp4" />
+  Your browser does not support the video tag.
+</video>
+
+## Key Benefits
+
+<CardGroup cols={2}>
+  <Card title="No Technical Knowledge Required" icon="users">
+    Content editors can manage documentation without knowing Markdown, Git, or terminal commands.
+  </Card>
+  
+  <Card title="Real-time Preview" icon="eye">
+    See your changes instantly on the production website before committing them.
+  </Card>
+  
+  <Card title="Secure Authentication" icon="lock">
+    OAuth authentication with GitHub, GitLab, and Google, plus support for custom auth flows.
+  </Card>
+  
+  <Card title="Git Integration" icon="git-branch">
+    All changes are committed to your Git repository, leveraging your existing CI/CD pipeline.
+  </Card>
+</CardGroup>
+
+## Current Features
+
+### Editors
+
+#### TipTap Visual Editor
+
+Rich Markdown editor with full MDC component support. Edit your content visually without writing raw Markdown:
+
+- Rich text formatting (bold, italic, headings, lists)
+- Insert and configure MDC components
+- Edit component props through visual interface
+- Drag and drop content blocks
+- Live preview of changes
+
+#### Monaco Code Editor
+
+Advanced code editor for developers who prefer working with raw code:
+
+- Full syntax highlighting for Markdown (MDC)
+- Support for YAML and JSON files
+- IntelliSense and autocomplete
+- Multi-cursor editing
+- Git diff visualization
+
+#### Form-based Editor
+
+Edit YAML, JSON, and frontmatter using auto-generated forms based on collection schemas:
+
+- Type-safe field validation
+- Dropdown selectors for predefined values
+- Date and time pickers
+- Boolean toggles and checkboxes
+- Array and object editing
+
+#### Vue Component Props Editor
+
+Visual interface to edit Vue component props directly from the editor:
+
+- Auto-detected prop types
+- Visual controls for each prop type
+- Live component preview
+- Validation and error handling
+
+### Content Management
+
+<Steps>
+  <Step title="File Management">
+    Create, edit, rename, and delete content files in the `content/` directory:
+    
+    - Tree view of content structure
+    - Drag and drop to reorganize files
+    - Duplicate files and folders
+    - File search and filtering
+  </Step>
+  
+  <Step title="Media Management">
+    Centralized media library with support for multiple formats:
+    
+    **Supported formats:**
+    - Images: JPEG, PNG, GIF, WebP, AVIF, SVG
+    - Videos: MP4, WebM
+    - Documents: PDF
+    
+    **Features:**
+    - Upload via drag and drop
+    - Organize with folders
+    - Insert into content with one click
+    - Preview and metadata viewing
+  </Step>
+  
+  <Step title="Real-time Preview">
+    Instantly preview content changes on your production website:
+    
+    - Live preview pane
+    - Responsive preview (mobile, tablet, desktop)
+    - Navigation between pages
+    - Component interaction testing
+  </Step>
+</Steps>
+
+### Authentication & Security
+
+#### Multi-provider Authentication
+
+Secure OAuth authentication with popular providers:
+
+<CardGroup cols={3}>
+  <Card title="GitHub" icon="github">
+    Authenticate with GitHub OAuth
+  </Card>
+  
+  <Card title="GitLab" icon="gitlab">
+    Authenticate with GitLab OAuth
+  </Card>
+  
+  <Card title="Google" icon="google">
+    Authenticate with Google OAuth
+  </Card>
+</CardGroup>
+
+#### Custom Authentication
+
+Utilities to implement custom authentication flows:
+
+- Password-based authentication
+- SSO (Single Sign-On) integration
+- LDAP integration
+- Custom OAuth providers
+- API key authentication
+
+### Git Integration
+
+Studio commits content changes directly from production:
+
+- **Commit workflow:**
+  1. Edit content in Studio
+  2. Preview changes in real-time
+  3. Commit with descriptive message
+  4. Changes pushed to Git repository
+  5. CI/CD pipeline deploys changes
+
+<Info>
+  Studio doesn't deploy directly. It commits to your Git repository, and your existing CI/CD pipeline (Vercel, Netlify, etc.) handles the deployment.
+</Info>
+
+### Development Mode
+
+Edit content and media files directly from your local filesystem using the Studio interface:
+
+```bash
+npm run dev
+```
+
+Then navigate to the Studio route (typically `/api/studio`) and authenticate. Changes are immediately reflected in your local files.
+
+<Tip>
+  Development mode is perfect for testing Studio features locally before deploying to production.
+</Tip>
+
+### Internationalization Support
+
+Full i18n support for **17 languages**:
+
+<CardGroup cols={4}>
+  <Card title="Arabic" icon="globe">AR</Card>
+  <Card title="Bulgarian" icon="globe">BG</Card>
+  <Card title="German" icon="globe">DE</Card>
+  <Card title="English" icon="globe">EN</Card>
+  <Card title="Spanish" icon="globe">ES</Card>
+  <Card title="Persian" icon="globe">FA</Card>
+  <Card title="Finnish" icon="globe">FI</Card>
+  <Card title="French" icon="globe">FR</Card>
+  <Card title="Indonesian" icon="globe">ID</Card>
+  <Card title="Italian" icon="globe">IT</Card>
+  <Card title="Japanese" icon="globe">JA</Card>
+  <Card title="Dutch" icon="globe">NL</Card>
+  <Card title="Polish" icon="globe">PL</Card>
+  <Card title="Portuguese (Brazil)" icon="globe">PT-BR</Card>
+  <Card title="Ukrainian" icon="globe">UA</Card>
+  <Card title="Chinese (Simplified)" icon="globe">ZH</Card>
+  <Card title="Chinese (Traditional)" icon="globe">ZH-TW</Card>
+</CardGroup>
+
+## Upcoming Features
+
+### Collections View
+
+Manage and navigate all content collections from a unified interface:
+
+- List view of all documents in a collection
+- Sortable and filterable columns
+- Bulk operations (delete, move, publish)
+- Collection-level settings
+
+### Media Optimization
+
+Optimize images and media assets directly within the editor:
+
+- Automatic image compression
+- Format conversion (JPEG → WebP, PNG → AVIF)
+- Responsive image generation
+- Alt text and metadata editing
+- CDN integration
+
+### AI Content Assistant
+
+Get smart, AI-powered suggestions to improve and speed up content creation:
+
+- Grammar and spelling corrections
+- Tone and style suggestions
+- Content summarization
+- Auto-generate meta descriptions
+- Suggest related content links
+- Translation assistance
+
+<Note>
+  AI features will be optional and configurable, respecting your privacy and data policies.
+</Note>
+
+### Community-driven Features
+
+Have an idea for Studio? The project is open-source and welcomes contributions:
+
+- [View the roadmap](https://github.com/nuxt/studio/discussions)
+- [Submit feature requests](https://github.com/nuxt/studio/issues/new)
+- [Contribute code](https://github.com/nuxt/studio/blob/main/CONTRIBUTING.md)
+
+## Installation
+
+<Steps>
+  <Step title="Install the module">
+    Add the Studio module to your Docus project:
+    
+    <CodeGroup>
+    ```bash npm
+    npm install @nuxtjs/studio
+    ```
+    
+    ```bash yarn
+    yarn add @nuxtjs/studio
+    ```
+    
+    ```bash pnpm
+    pnpm add @nuxtjs/studio
+    ```
+    </CodeGroup>
+  </Step>
+  
+  <Step title="Configure the module">
+    Add Studio to your `nuxt.config.ts`:
+    
+    ```typescript nuxt.config.ts
+    export default defineNuxtConfig({
+      extends: ['docus'],
+      modules: ['@nuxtjs/studio']
+    })
+    ```
+  </Step>
+  
+  <Step title="Configure authentication">
+    Set up OAuth authentication in your environment variables:
+    
+    ```bash .env
+    # GitHub OAuth
+    NUXT_STUDIO_GITHUB_CLIENT_ID=your_github_client_id
+    NUXT_STUDIO_GITHUB_CLIENT_SECRET=your_github_client_secret
+    
+    # GitLab OAuth (optional)
+    NUXT_STUDIO_GITLAB_CLIENT_ID=your_gitlab_client_id
+    NUXT_STUDIO_GITLAB_CLIENT_SECRET=your_gitlab_client_secret
+    
+    # Google OAuth (optional)
+    NUXT_STUDIO_GOOGLE_CLIENT_ID=your_google_client_id
+    NUXT_STUDIO_GOOGLE_CLIENT_SECRET=your_google_client_secret
+    ```
+  </Step>
+  
+  <Step title="Deploy and access Studio">
+    Deploy your site and navigate to the Studio route:
+    
+    ```
+    https://your-site.com/api/studio
+    ```
+    
+    Authenticate and start editing!
+  </Step>
+</Steps>
+
+<Tip>
+  For detailed installation instructions and advanced configuration, visit the [official Nuxt Studio documentation](https://nuxt.studio/introduction).
+</Tip>
+
+## Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Non-Technical Editors" icon="users">
+    Allow content writers and editors to manage documentation without technical knowledge.
+  </Card>
+  
+  <Card title="Quick Fixes" icon="zap">
+    Fix typos and update content directly in production without a full development cycle.
+  </Card>
+  
+  <Card title="Collaborative Editing" icon="users">
+    Multiple team members can edit content simultaneously with Git conflict resolution.
+  </Card>
+  
+  <Card title="Visual Component Configuration" icon="sliders">
+    Configure component props visually without writing code or understanding MDC syntax.
+  </Card>
+</CardGroup>
+
+## Best Practices
+
+<Steps>
+  <Step title="Use branch protection">
+    Configure branch protection rules in GitHub/GitLab to require reviews before merging Studio commits to production.
+  </Step>
+  
+  <Step title="Set up staging environment">
+    Deploy a staging site where content editors can preview changes before committing to production.
+  </Step>
+  
+  <Step title="Define content schemas">
+    Use Nuxt Content schemas to provide type-safe editing and validation in Studio's form-based editor.
+  </Step>
+  
+  <Step title="Document component usage">
+    Provide clear documentation for content editors on how to use custom components in Studio.
+  </Step>
+</Steps>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Studio Documentation"
+    icon="book"
+    href="https://nuxt.studio/introduction"
+    target="_blank"
+  >
+    Read the complete Nuxt Studio documentation
+  </Card>
+  
+  <Card
+    title="Troubleshooting"
+    icon="wrench"
+    href="/troubleshooting"
+  >
+    Common issues and solutions when working with Docus
+  </Card>
+</CardGroup>

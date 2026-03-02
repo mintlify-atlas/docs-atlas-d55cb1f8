@@ -1,0 +1,576 @@
+---
+title: Migration Guide
+description: How to migrate your documentation from an existing solution to Docus, or upgrade from Docus v3 to v4.
+---
+
+# Migration Guide
+
+Learn how to migrate to Docus from other documentation frameworks, or upgrade from Docus v3 to the new v4 architecture.
+
+## Migrating from Docus v3 to v4
+
+Docus v4 introduces a new **layer-based approach** that leverages the official Nuxt CLI instead of the custom Docus CLI. While your existing content and configuration remain compatible, you'll need to update your commands and project setup.
+
+### Breaking Changes
+
+The main breaking changes are related to CLI commands:
+
+| Docus v3 | Docus v4 |
+| --- | --- |
+| `npx docus init my-docs` | `npx create-docus my-docs` |
+| `docus dev` | `nuxt dev --extends docus` |
+| `docus build` | `nuxt build --extends docus` |
+
+<Tip>
+  Your existing Markdown content and MDC syntax will work without changes. The migration primarily involves updating your development and build workflow.
+</Tip>
+
+### Migration Steps
+
+<Steps>
+  <Step title="Update package.json">
+    Update your dependencies and scripts in `package.json`:
+    
+    ```json package.json
+    {
+      "scripts": {
+        "dev": "nuxt dev --extends docus",
+        "build": "nuxt build --extends docus"
+      },
+      "dependencies": {
+        "docus": "latest",
+        "better-sqlite3": "^12.6.2",
+        "nuxt": "^4.3.1"
+      }
+    }
+    ```
+    
+    <Note>
+      Remove the old `docus` CLI from devDependencies if present. The new version uses Nuxt CLI directly.
+    </Note>
+  </Step>
+  
+  <Step title="Add better-sqlite3 dependency">
+    Docus v4 requires `better-sqlite3` for Nuxt Content's native SQLite connector:
+    
+    <CodeGroup>
+    ```bash npm
+    npm install better-sqlite3
+    ```
+    
+    ```bash yarn
+    yarn add better-sqlite3
+    ```
+    
+    ```bash pnpm
+    pnpm add better-sqlite3
+    ```
+    </CodeGroup>
+  </Step>
+  
+  <Step title="Update configuration (if needed)">
+    If you have a custom `nuxt.config.ts`, ensure it extends the Docus layer:
+    
+    ```typescript nuxt.config.ts
+    export default defineNuxtConfig({
+      extends: ['docus'],
+      // Your custom configuration
+    })
+    ```
+  </Step>
+  
+  <Step title="Update environment variables">
+    Review your environment variables. Some Studio and AI assistant configurations may have changed:
+    
+    ```bash .env
+    # v4 uses new env variable names for AI features
+    AI_GATEWAY_API_KEY=your_api_key
+    ```
+  </Step>
+  
+  <Step title="Test your site">
+    Install dependencies and test your site:
+    
+    <CodeGroup>
+    ```bash npm
+    npm install
+    npm run dev
+    ```
+    
+    ```bash yarn
+    yarn install
+    yarn dev
+    ```
+    
+    ```bash pnpm
+    pnpm install
+    pnpm dev
+    ```
+    </CodeGroup>
+  </Step>
+  
+  <Step title="Update deployment configuration">
+    Update your deployment scripts and CI/CD pipelines to use the new commands:
+    
+    ```yaml .github/workflows/deploy.yml
+    - name: Build
+      run: npm run build
+    ```
+  </Step>
+</Steps>
+
+### What Stays the Same
+
+<CardGroup cols={2}>
+  <Card title="Content Files" icon="file-text">
+    All your Markdown content works without changes. MDC syntax remains identical.
+  </Card>
+  
+  <Card title="Components" icon="package">
+    Custom Vue components work the same way. No changes needed.
+  </Card>
+  
+  <Card title="Frontmatter" icon="list">
+    Page frontmatter structure is backward compatible.
+  </Card>
+  
+  <Card title="App Config" icon="settings">
+    `app.config.ts` structure remains the same with new features added.
+  </Card>
+</CardGroup>
+
+### New Features in v4
+
+<CardGroup cols={2}>
+  <Card title="Nuxt 4 Support" icon="nuxt">
+    Built on the latest Nuxt framework with improved performance and DX.
+  </Card>
+  
+  <Card title="Tailwind CSS 4" icon="palette">
+    Updated to Tailwind CSS 4 for modern styling capabilities.
+  </Card>
+  
+  <Card title="AI Integration" icon="sparkles">
+    Native LLM support with `llms.txt` generation and MCP server.
+  </Card>
+  
+  <Card title="Studio Module" icon="edit">
+    New self-hosted Studio module for visual content editing.
+  </Card>
+</CardGroup>
+
+## Migrating from Other Documentation Frameworks
+
+Already using a Markdown-based documentation solution? Whether it's **Docus v1**, **VuePress**, **VitePress**, **Docusaurus**, **MkDocs**, or another framework, migrating to Docus is straightforward.
+
+### Why Migrate to Docus?
+
+Docus offers a clean and maintainable solution with a **single dependency**: the Docus library itself. No need to manage multiple plugins or configurations. Everything is built-in and maintained together, making updates simple.
+
+<CardGroup cols={2}>
+  <Card title="Minimal Dependencies" icon="package">
+    Single `docus` dependency includes everything you need.
+  </Card>
+  
+  <Card title="Vue Ecosystem" icon="nuxt">
+    Full access to Nuxt and Vue's powerful features.
+  </Card>
+  
+  <Card title="MDC Syntax" icon="code">
+    Embed components in Markdown without complex configuration.
+  </Card>
+  
+  <Card title="Built-in Features" icon="star">
+    Search, navigation, dark mode, and i18n work out of the box.
+  </Card>
+</CardGroup>
+
+### General Migration Steps
+
+<Steps>
+  <Step title="Create a Docus project">
+    Start with a fresh Docus project:
+    
+    ```bash
+    npx create-docus my-docs
+    cd my-docs
+    ```
+  </Step>
+  
+  <Step title="Copy your content">
+    Move your existing Markdown files into the `content/` directory:
+    
+    ```bash
+    # For single-language docs
+    cp -r /path/to/old-docs/docs/* content/
+    
+    # For i18n docs
+    cp -r /path/to/old-docs/en/* content/en/
+    cp -r /path/to/old-docs/fr/* content/fr/
+    ```
+  </Step>
+  
+  <Step title="Update frontmatter (if needed)">
+    Convert your existing frontmatter to Docus format:
+    
+    **Before (VitePress/VuePress):**
+    ```yaml
+    ---
+    sidebar: auto
+    next: /guide/advanced
+    ---
+    ```
+    
+    **After (Docus):**
+    ```yaml
+    ---
+    title: Getting Started
+    description: Learn the basics
+    navigation:
+      icon: i-lucide-book
+    ---
+    ```
+  </Step>
+  
+  <Step title="Convert custom components">
+    **If you already use Nuxt Content and MDC syntax:**
+    
+    Most components should work directly. Check if equivalent components exist in [Nuxt UI](https://ui.nuxt.com/components). If not, create your own custom components in `app/components/`.
+    
+    **If you use standard Markdown:**
+    
+    Your files work as-is. Progressively enhance your docs by adding MDC components where useful.
+  </Step>
+  
+  <Step title="Migrate assets">
+    Copy static assets to the `public/` directory:
+    
+    ```bash
+    cp -r /path/to/old-docs/public/* public/
+    ```
+    
+    Update image paths in your Markdown if needed.
+  </Step>
+  
+  <Step title="Configure branding">
+    Create an `app.config.ts` file to customize your site:
+    
+    ```typescript app.config.ts
+    export default defineAppConfig({
+      seo: {
+        title: 'My Documentation',
+        description: 'Documentation for my project'
+      },
+      header: {
+        title: 'My Docs',
+        logo: {
+          light: '/logo-light.png',
+          dark: '/logo-dark.png',
+          alt: 'Logo'
+        }
+      },
+      socials: {
+        github: 'username/repo'
+      }
+    })
+    ```
+  </Step>
+  
+  <Step title="Test and refine">
+    Start the development server and test your migration:
+    
+    ```bash
+    npm run dev
+    ```
+    
+    Visit `http://localhost:3000` and check:
+    - All pages load correctly
+    - Navigation works as expected
+    - Images and assets display properly
+    - Custom components render correctly
+  </Step>
+</Steps>
+
+### Framework-Specific Migration Notes
+
+#### From VitePress
+
+<Accordion>
+  <AccordionItem title="Component Syntax">
+    **VitePress:**
+    ```markdown
+    <Badge type="tip" text="v2.0.0" />
+    ```
+    
+    **Docus (MDC):**
+    ```markdown
+    ::badge
+    v2.0.0
+    ::
+    ```
+  </AccordionItem>
+  
+  <AccordionItem title="Sidebar Configuration">
+    VitePress requires manual sidebar configuration in `.vitepress/config.js`. Docus automatically generates navigation from your file structure.
+    
+    **Optional:** You can still customize order using numbered prefixes:
+    ```
+    1.getting-started/
+    2.guide/
+    3.api/
+    ```
+  </AccordionItem>
+</Accordion>
+
+#### From VuePress
+
+<Accordion>
+  <AccordionItem title="Plugin System">
+    VuePress uses plugins for features like search, PWA, etc. In Docus, most features are built-in:
+    
+    - Search: Built-in
+    - Dark mode: Built-in
+    - i18n: Use `@nuxtjs/i18n` module
+    - PWA: Use `@vite-pwa/nuxt` module
+  </AccordionItem>
+  
+  <AccordionItem title="Theme Configuration">
+    Instead of theme configuration in `.vuepress/config.js`, use `app.config.ts` for Docus customization.
+  </AccordionItem>
+</Accordion>
+
+#### From Docusaurus
+
+<Accordion>
+  <AccordionItem title="React to Vue">
+    Docusaurus uses React components. You'll need to rewrite custom components in Vue:
+    
+    **Docusaurus (React):**
+    ```jsx
+    export function CustomComponent({ title }) {
+      return <div>{title}</div>
+    }
+    ```
+    
+    **Docus (Vue):**
+    ```vue
+    <template>
+      <div>{{ title }}</div>
+    </template>
+    
+    <script setup>
+    defineProps(['title'])
+    </script>
+    ```
+  </AccordionItem>
+  
+  <AccordionItem title="MDX to MDC">
+    Docusaurus uses MDX (JSX in Markdown). Docus uses MDC (simpler component syntax):
+    
+    **MDX:**
+    ```mdx
+    <Card title="Hello" />
+    ```
+    
+    **MDC:**
+    ```markdown
+    ::card{title="Hello"}
+    ::
+    ```
+  </AccordionItem>
+</Accordion>
+
+#### From MkDocs
+
+<Accordion>
+  <AccordionItem title="Python to JavaScript">
+    MkDocs is Python-based. Docus is JavaScript/Node.js based. Update your deployment scripts accordingly.
+  </AccordionItem>
+  
+  <AccordionItem title="mkdocs.yml to app.config.ts">
+    Convert your site configuration:
+    
+    **MkDocs (`mkdocs.yml`):**
+    ```yaml
+    site_name: My Documentation
+    theme:
+      name: material
+    ```
+    
+    **Docus (`app.config.ts`):**
+    ```typescript
+    export default defineAppConfig({
+      seo: {
+        title: 'My Documentation'
+      }
+    })
+    ```
+  </AccordionItem>
+</Accordion>
+
+## Content Enhancement
+
+After migrating, enhance your documentation with Docus features:
+
+### Add Components
+
+<CodeGroup>
+```markdown Callouts
+::note
+Important information for users.
+::
+
+::tip
+Helpful suggestion or best practice.
+::
+
+::warning
+Be careful with this action.
+::
+```
+
+```markdown Cards
+::card-group
+  :::card
+  ---
+  title: Guide
+  icon: i-lucide-book
+  to: /guide
+  ---
+  Learn the basics
+  :::
+  
+  :::card
+  ---
+  title: API Reference
+  icon: i-lucide-code
+  to: /api
+  ---
+  Complete API documentation
+  :::
+::
+```
+
+```markdown Steps
+::steps
+### Install dependencies
+Run `npm install` to get started.
+
+### Configure project
+Update your `app.config.ts` file.
+
+### Deploy
+Deploy to your favorite platform.
+::
+```
+</CodeGroup>
+
+### Add Icons
+
+Docus includes Lucide and Simple Icons out of the box:
+
+```markdown
+:icon{name="i-lucide-rocket"}
+:icon{name="i-simple-icons-github"}
+```
+
+### Configure SEO
+
+Add frontmatter for better SEO:
+
+```yaml
+---
+title: Getting Started
+description: Learn how to get started with our platform
+seo:
+  title: Getting Started - My Docs
+  description: Complete guide to getting started with detailed examples
+  ogImage: /images/og-getting-started.png
+---
+```
+
+## Troubleshooting
+
+<CardGroup cols={2}>
+  <Card title="Content Not Displaying" icon="alert-circle">
+    Ensure files are in the `content/` directory and have `.md` or `.mdx` extensions.
+  </Card>
+  
+  <Card title="Components Not Working" icon="alert-circle">
+    Check that custom components are in `app/components/` and use kebab-case names.
+  </Card>
+  
+  <Card title="Navigation Issues" icon="alert-circle">
+    Verify file structure and use numbered prefixes for custom ordering.
+  </Card>
+  
+  <Card title="Build Errors" icon="alert-circle">
+    Ensure `better-sqlite3` is installed and compatible with your Node.js version.
+  </Card>
+</CardGroup>
+
+<Tip>
+  For more troubleshooting help, see the [Troubleshooting guide](/troubleshooting).
+</Tip>
+
+## Getting Help
+
+Need assistance with your migration?
+
+<CardGroup cols={2}>
+  <Card
+    title="Documentation"
+    icon="book"
+    href="https://docus.dev"
+    target="_blank"
+  >
+    Browse the complete Docus documentation
+  </Card>
+  
+  <Card
+    title="GitHub Issues"
+    icon="github"
+    href="https://github.com/nuxt-content/docus/issues"
+    target="_blank"
+  >
+    Report issues or ask questions
+  </Card>
+  
+  <Card
+    title="GitHub Discussions"
+    icon="message-circle"
+    href="https://github.com/nuxt-content/docus/discussions"
+    target="_blank"
+  >
+    Join community discussions
+  </Card>
+  
+  <Card
+    title="Discord"
+    icon="message-square"
+    href="https://discord.nuxt.com"
+    target="_blank"
+  >
+    Chat with the Nuxt community
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Project Structure"
+    icon="folder"
+    href="/project-structure"
+  >
+    Learn about Docus project organization
+  </Card>
+  
+  <Card
+    title="Studio Module"
+    icon="edit"
+    href="/studio"
+  >
+    Edit your documentation visually in production
+  </Card>
+</CardGroup>

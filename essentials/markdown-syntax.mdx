@@ -1,0 +1,208 @@
+---
+title: Markdown Syntax
+description: Text, title, and styling in standard markdown
+icon: heading
+---
+
+Docus supports full Markdown syntax with enhanced features for documentation. This guide covers the essential Markdown elements you'll use when writing your docs.
+
+## Titles and Headings
+
+Use titles to introduce main sections. They structure your documentation and help users navigate content.
+
+```markdown
+## Main Section Title
+
+### Subsection Title
+
+#### Smaller Subsection
+```
+
+<Note>
+Each title and subtitle creates an anchor and shows up automatically in the table of contents.
+</Note>
+
+## Text Formatting
+
+Docus supports most Markdown formatting options for rich text styling.
+
+<Tabs>
+  <Tab title="Basic Formatting">
+    | Style  | Syntax       | Result     |
+    | ------ | ------------ | ---------- |
+    | Bold   | `**bold**`   | **Bold**   |
+    | Italic | `*italic*`   | *Italic*   |
+    | Strike | `~~strike~~` | ~~Strike~~ |
+  </Tab>
+  <Tab title="Combined Formatting">
+    | Style         | Syntax              | Result            |
+    | ------------- | ------------------- | ----------------- |
+    | Bold Italic   | `**_bold italic_**` | ***Bold Italic*** |
+    | Bold Strike   | `~~**bold**~~`      | ~~**Bold**~~      |
+    | Italic Strike | `~~*italic*~~`      | ~~*Italic*~~      |
+  </Tab>
+</Tabs>
+
+Combine formatting options to create richer text styles and visual emphasis in your documentation.
+
+## Links
+
+Links connect different parts of your documentation and external resources, essential for user navigation and providing references.
+
+### External Links
+
+To create a link, wrap the link text in brackets followed by the URL in parentheses:
+
+```markdown
+[Nuxt UI](https://ui.nuxt.com/getting-started/installation/nuxt)
+```
+
+Result: [Nuxt UI](https://ui.nuxt.com/getting-started/installation/nuxt)
+
+### Internal Links
+
+For linking within your documentation, use root-relative paths:
+
+```markdown
+[Installation](/installation)
+[Configuration](/concepts/configuration)
+```
+
+<Tip>
+Use relative paths starting with `/` for internal links to ensure they work correctly across different environments.
+</Tip>
+
+## Lists
+
+Organize related items in a structured, readable format. Markdown supports unordered, ordered, and nested lists.
+
+### Unordered Lists
+
+Use unordered lists for items without a specific sequence. Start each item with a `-` symbol:
+
+```markdown
+- First list item
+- Second list item
+- Third list item
+```
+
+Result:
+- First list item
+- Second list item
+- Third list item
+
+### Ordered Lists
+
+Use ordered lists when item order matters, like steps in a process:
+
+```markdown
+1. First step
+2. Second step
+3. Third step
+```
+
+Result:
+1. First step
+2. Second step
+3. Third step
+
+### Nested Lists
+
+Create hierarchical lists with sub-items for complex structures. Indent sub-items by two or four spaces:
+
+```markdown
+- Main item
+  - Nested item
+  - Another nested item
+- Another main item
+  - Nested under second item
+```
+
+Result:
+- Main item
+  - Nested item
+  - Another nested item
+- Another main item
+  - Nested under second item
+
+## Tables
+
+Present structured data in rows and columns clearly. Tables are ideal for comparing data or listing properties.
+
+```markdown
+| Prop    | Default   | Type     |
+| ------- | --------- | -------- |
+| `name`  |           | `string` |
+| `size`  | `md`      | `string` |
+| `color` | `neutral` | `string` |
+```
+
+Result:
+
+| Prop    | Default   | Type     |
+| ------- | --------- | -------- |
+| `name`  |           | `string` |
+| `size`  | `md`      | `string` |
+| `color` | `neutral` | `string` |
+
+<Tip>
+You can align columns using colons in the separator row: `| :--- |` for left, `| :---: |` for center, `| ---: |` for right alignment.
+</Tip>
+
+## Blockquotes
+
+Highlight important quotations, citations, or emphasized text. Blockquotes visually distinguish quoted content.
+
+### Single-line Blockquotes
+
+Add a `>` in front of a paragraph for short, impactful quotes:
+
+```markdown
+> Docus is a fully integrated documentation solution built with Nuxt UI.
+```
+
+Result:
+
+> Docus is a fully integrated documentation solution built with Nuxt UI.
+
+### Multi-line Blockquotes
+
+For longer quotes with multiple paragraphs:
+
+```markdown
+> Docus is a fully integrated documentation solution built with Nuxt UI.
+>
+> Create beautiful, responsive, and accessible documentation sites with ease.
+```
+
+Result:
+
+> Docus is a fully integrated documentation solution built with Nuxt UI.
+>
+> Create beautiful, responsive, and accessible documentation sites with ease.
+
+## Horizontal Rules
+
+Separate content sections with horizontal rules:
+
+```markdown
+---
+```
+
+Result:
+
+---
+
+## Inline Code
+
+Reference code elements within text using backticks:
+
+```markdown
+Use the `config.ts` file to configure your app.
+```
+
+Result: Use the `config.ts` file to configure your app.
+
+<Note>
+For multi-line code examples, see the [Code Blocks](/essentials/code-blocks) page.
+</Note>
