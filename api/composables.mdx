@@ -345,6 +345,175 @@ t('logo.wordmarkDownloaded')
 ```
 </CodeGroup>
 
+## useAssistant
+
+Control the AI assistant panel state and functionality.
+
+**Location:** `layer/modules/assistant/runtime/composables/useAssistant.ts`
+
+### Usage
+
+<CodeGroup>
+```vue
+<script setup lang="ts">
+const { 
+  isEnabled,
+  isOpen, 
+  isExpanded,
+  messages,
+  pendingMessage,
+  faqQuestions,
+  open, 
+  close, 
+  toggle,
+  toggleExpanded,
+  clearMessages,
+  clearPending
+} = useAssistant()
+
+// Open assistant with an initial question
+function askQuestion(question: string) {
+  open(question)
+}
+
+// Open assistant and clear previous conversation
+function startNewConversation() {
+  open(undefined, true)
+}
+</script>
+
+<template>
+  <div>
+    <button v-if="isEnabled" @click="toggle">
+      {{ isOpen ? 'Close' : 'Open' }} Assistant
+    </button>
+    
+    <p v-if="isOpen">
+      Panel width: {{ panelWidth }}px
+      Expanded: {{ isExpanded }}
+    </p>
+  </div>
+</template>
+```
+</CodeGroup>
+
+### Returned Properties
+
+<ResponseField name="isEnabled" type="Ref<boolean>">
+  Whether the AI assistant is enabled in the configuration.
+</ResponseField>
+
+<ResponseField name="isOpen" type="Ref<boolean>">
+  Whether the assistant panel is currently open.
+</ResponseField>
+
+<ResponseField name="isExpanded" type="Ref<boolean>">
+  Whether the assistant panel is in expanded mode (520px vs 360px).
+</ResponseField>
+
+<ResponseField name="isMobile" type="Ref<boolean>">
+  Whether the current viewport is mobile (max-width: 767px).
+</ResponseField>
+
+<ResponseField name="panelWidth" type="Ref<number>">
+  Current panel width in pixels (360 for compact, 520 for expanded).
+</ResponseField>
+
+<ResponseField name="shouldPushContent" type="Ref<boolean>">
+  Whether the assistant panel should push content aside (true when open on desktop).
+</ResponseField>
+
+<ResponseField name="messages" type="Ref<UIMessage[]>">
+  Array of chat messages in the current conversation.
+</ResponseField>
+
+<ResponseField name="pendingMessage" type="Ref<string | undefined>">
+  Message waiting to be sent when the panel opens.
+</ResponseField>
+
+<ResponseField name="faqQuestions" type="Ref<FaqCategory[]>">
+  FAQ questions configured in `app.config.ts`, normalized to category format.
+  
+  Automatically handles localized FAQ questions based on current locale.
+</ResponseField>
+
+### Methods
+
+<ResponseField name="open" type="(initialMessage?: string, clearPrevious?: boolean) => void">
+  Open the assistant panel.
+  
+  **Parameters:**
+  - `initialMessage` (optional) - Message to send when panel opens
+  - `clearPrevious` (optional, default: `false`) - Clear previous messages before opening
+</ResponseField>
+
+<ResponseField name="close" type="() => void">
+  Close the assistant panel.
+</ResponseField>
+
+<ResponseField name="toggle" type="() => void">
+  Toggle the assistant panel open/closed state.
+</ResponseField>
+
+<ResponseField name="toggleExpanded" type="() => void">
+  Toggle between compact (360px) and expanded (520px) panel widths.
+</ResponseField>
+
+<ResponseField name="clearMessages" type="() => void">
+  Clear all messages from the current conversation.
+</ResponseField>
+
+<ResponseField name="clearPending" type="() => void">
+  Clear the pending message without sending it.
+</ResponseField>
+
+### Features
+
+**Responsive Behavior:**
+- Automatically detects mobile viewports
+- Adjusts panel width based on expanded state
+- Only pushes content on desktop viewports
+
+**Localization Support:**
+- Handles localized FAQ questions
+- Falls back to default locale if current locale not available
+- Normalizes FAQ format (string arrays or category objects)
+
+**State Management:**
+- Uses Nuxt's `useState` for persistent state across navigation
+- Shared state between components
+- Reactive updates
+
+### Example: Custom Assistant Trigger
+
+<CodeGroup>
+```vue
+<script setup lang="ts">
+const { isEnabled, open, faqQuestions } = useAssistant()
+
+function askFaq(question: string) {
+  open(question, true) // Open with question and clear previous messages
+}
+</script>
+
+<template>
+  <div v-if="isEnabled">
+    <h3>Frequently Asked Questions</h3>
+    <div v-for="category in faqQuestions" :key="category.category">
+      <h4>{{ category.category }}</h4>
+      <button 
+        v-for="question in category.items" 
+        :key="question"
+        @click="askFaq(question)"
+      >
+        {{ question }}
+      </button>
+    </div>
+  </div>
+</template>
+```
+</CodeGroup>
+
 ## Type Definitions
 
 ### UseSeoOptions
