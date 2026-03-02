@@ -1,0 +1,105 @@
+{
+  "projectType": "framework",
+  "projectName": "Docus",
+  "projectDescription": "A modern documentation framework built on Nuxt with Markdown support and beautiful design.",
+  "theme": "palm",
+  "primaryColor": "#10b981",
+  "lightColor": "#34d399",
+  "darkColor": "#059669",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "installation",
+              "project-structure",
+              "studio",
+              "migration",
+              "troubleshooting"
+            ]
+          },
+          {
+            "group": "Concepts",
+            "pages": [
+              "concepts/editing",
+              "concepts/configuration",
+              "concepts/theming",
+              "concepts/customization",
+              "concepts/internationalization",
+              "concepts/nuxt-integration"
+            ]
+          },
+          {
+            "group": "Essentials",
+            "pages": [
+              "essentials/markdown-syntax",
+              "essentials/code-blocks",
+              "essentials/components",
+              "essentials/images-embeds"
+            ]
+          },
+          {
+            "group": "AI Features",
+            "pages": [
+              "ai/assistant",
+              "ai/mcp-server",
+              "ai/llms-txt"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Configuration",
+            "pages": [
+              "api/app-config",
+              "api/nuxt-config"
+            ]
+          },
+          {
+            "group": "Components",
+            "pages": [
+              "api/components"
+            ]
+          },
+          {
+            "group": "Composables",
+            "pages": [
+              "api/composables"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Beautiful responsive documentation theme",
+    "Enhanced Markdown with Vue components (MDC)",
+    "Built-in dark mode support",
+    "Full internationalization (i18n) support",
+    "Integrated search functionality",
+    "AI assistant with MCP server integration",
+    "Auto-generated llms.txt for LLM integration",
+    "Nuxt Studio integration",
+    "TypeScript support",
+    "Fast CLI for project scaffolding"
+  ],
+  "publicApiSurface": [
+    "create-docus CLI",
+    "docus Nuxt layer",
+    "app.config.ts configuration",
+    "nuxt.config.ts configuration",
+    "MDC components (enhanced Markdown)",
+    "useAssistant composable",
+    "Header component",
+    "Navigation system",
+    "Theme configuration",
+    "i18n configuration"
+  ]
+}
